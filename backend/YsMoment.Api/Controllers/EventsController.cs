@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using YsMoment.Api.Services;
 using YsMoment.Core.DTOs;
 using YsMoment.Infrastructure.Services;
@@ -39,6 +40,7 @@ public class EventsController : ControllerBase
         return Ok(evt with { QrCodeBase64 = _qr.GenerateBase64(evt.GuestUrl) });
     }
 
+    [EnableRateLimiting("guest-read")]
     [HttpGet("guest/{slug}")]
     public async Task<ActionResult<GuestEventResponse>> GetGuestEvent(string slug)
     {

@@ -77,12 +77,44 @@ builder.Services.AddRateLimiter(options =>
                 Window = TimeSpan.FromMinutes(15),
                 QueueLimit = 0
             }));
+    options.AddPolicy("guest-read", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 30,
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 0
+            }));
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 });
 
 builder.Services.AddHealthChecks();
 
+// Fail fast on missing production configuration instead of deploying silently-broken
+// QR/guest links or a wide-open/blocked CORS policy.
+if (!builder.Environment.IsDevelopment())
+{
+    if (string.IsNullOrWhiteSpace(builder.Configuration["App:GuestBaseUrl"]))
+        throw new InvalidOperationException("App:GuestBaseUrl is required in production (used to build guest QR code URLs).");
+    if ((builder.Configuration.GetSection("Cors:Origins").Get<string[]>() ?? []).Length == 0)
+        throw new InvalidOperationException("Cors:Origins must list at least the deployed frontend origin in production.");
+}
+
 var app = builder.Build();
+
+app.UseExceptionHandler(errorApp => errorApp.Run(async context =>
+{
+    var feature = context.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerFeature>();
+    if (feature != null)
+    {
+        var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
+        logger.LogError(feature.Error, "Unhandled exception on {Path}", context.Request.Path);
+    }
+    context.Response.ContentType = "application/json";
+    context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+    await context.Response.WriteAsJsonAsync(new { message = "אירעה שגיאה בשרת. נסו שוב מאוחר יותר." });
+}));
 
 using (var scope = app.Services.CreateScope())
 {

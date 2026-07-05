@@ -17,7 +17,8 @@ public static class DependencyInjection
             if (env.IsDevelopment())
                 options.UseSqlite(configuration.GetConnectionString("Sqlite") ?? "Data Source=ysmoment.db");
             else
-                options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
+                options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"), npgsql =>
+                    npgsql.EnableRetryOnFailure(maxRetryCount: 5, maxRetryDelay: TimeSpan.FromSeconds(10), errorCodesToAdd: null));
         });
 
         services.AddScoped<IImageValidator, ImageValidator>();

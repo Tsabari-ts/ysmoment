@@ -33,6 +33,7 @@ public class AppDbContext : DbContext
             e.HasKey(x => x.Id);
             e.HasIndex(x => new { x.EventId, x.OrderNumber }).IsUnique();
             e.HasIndex(x => x.PublicToken).IsUnique();
+            e.HasIndex(x => new { x.EventId, x.Phone });
             e.Property(x => x.PublicToken).HasMaxLength(64);
             e.Property(x => x.CustomerName).HasMaxLength(150);
             e.Property(x => x.Phone).HasMaxLength(20);

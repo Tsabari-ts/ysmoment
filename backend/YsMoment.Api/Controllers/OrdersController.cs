@@ -54,6 +54,7 @@ public class OrdersController : ControllerBase
         }
     }
 
+    [EnableRateLimiting("guest-read")]
     [HttpGet("orders/{orderId:guid}/status")]
     public async Task<ActionResult<OrderStatusResponse>> GetStatus(Guid orderId)
     {

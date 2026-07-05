@@ -152,6 +152,9 @@ export class GuestOrderComponent implements OnInit, OnDestroy {
             estimatedWaitMinutes: status.estimatedWaitMinutes
           };
         }
+        if (status.status === OrderStatus.Ready || status.status === OrderStatus.Cancelled) {
+          this.pollSub?.unsubscribe();
+        }
       });
   }
 }

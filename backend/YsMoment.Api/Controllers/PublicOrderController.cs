@@ -13,6 +13,7 @@ public class PublicOrderController : ControllerBase
 
     public PublicOrderController(OrderService orders) => _orders = orders;
 
+    [EnableRateLimiting("guest-read")]
     [HttpGet("o/{token}")]
     public async Task<ActionResult<PublicOrderView>> GetByToken(string token)
     {
