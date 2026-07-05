@@ -1,0 +1,28 @@
+# .NET
+bin/
+obj/
+uploads/
+ysmoment.db
+ysmoment.db-*
+*.user
+*.suo
+
+# Node
+node_modules/
+dist/
+
+# IDE
+.vs/
+.idea/
+
+# Env
+.env
+*.env.local
+
+# Production environment (contains injected secrets after set-env.js runs)
+# environment.prod.ts is checked in with __PLACEHOLDER__ values only.
+# The build pipeline replaces them via set-env.js — never commit filled values.
+
+# OS
+Thumbs.db
+.DS_Store

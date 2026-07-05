@@ -1,0 +1,27 @@
+.form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+
+  section h2 {
+    font-size: 1rem;
+    color: var(--primary);
+    margin: 0 0 1rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.5rem;
+  }
+}
+
+.checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1rem;
+
+  label {
+    flex-direction: row;
+    align-items: center;
+    margin: 0;
+    color: var(--text);
+  }
+}

@@ -1,0 +1,128 @@
+@if (event) {
+  <div class="dashboard">
+    <header class="dash-header">
+      <div>
+        <h1>{{ event.name }}</h1>
+        <p>{{ event.hostNames }} · {{ event.guestUrl }}</p>
+      </div>
+      <div class="header-actions">
+        @if (event.qrCodeBase64) {
+          <img class="qr-small" [src]="'data:image/png;base64,' + event.qrCodeBase64" alt="QR" />
+        }
+        <button class="btn-warning" (click)="togglePause()">
+          {{ event.ordersPaused ? 'פתח הזמנות' : 'עצור הזמנות זמנית' }}
+        </button>
+        <button class="btn-danger" (click)="endEvent()">סיים אירוע</button>
+      </div>
+    </header>
+
+    <div class="dash-layout">
+      <aside class="queue-panel card">
+        <div class="search-bar">
+          <input [(ngModel)]="searchQuery" placeholder="חיפוש: שם / טלפון / מספר הזמנה" (keyup.enter)="search()" />
+          <button (click)="search()">חפש</button>
+        </div>
+
+        <h2>תור הזמנות ({{ pendingOrders.length }})</h2>
+        <div class="order-list">
+          @for (order of orders; track order.id) {
+            <div
+              class="order-card"
+              [class.selected]="selectedOrder?.id === order.id"
+              [class.status-ready]="order.status === OrderStatus.Ready"
+              [class.status-cancelled]="order.status === OrderStatus.Cancelled"
+              (click)="selectOrder(order)">
+              <div class="order-card-top">
+                <span class="order-num">#{{ order.orderNumber }}</span>
+                <span class="badge" [class]="'badge-status-' + order.status">{{ statusLabels[order.status] }}</span>
+              </div>
+              <p class="order-name">{{ order.customerName }}</p>
+              <p class="order-meta">{{ sizeLabels[order.magnetSize] }} × {{ order.quantity }} · {{ order.waitMinutes }} דק'</p>
+            </div>
+          } @empty {
+            <p class="empty">אין הזמנות עדיין</p>
+          }
+        </div>
+      </aside>
+
+      <main class="preview-panel card">
+        @if (selectedOrder) {
+          <!-- Toolbar למעלה — תמיד גלוי -->
+          <div class="order-toolbar">
+            <div class="toolbar-row">
+              <div class="toolbar-info">
+                <h2>#{{ selectedOrder.orderNumber }} — {{ selectedOrder.customerName }}</h2>
+                <p dir="ltr">{{ selectedOrder.phone }} · {{ sizeLabels[selectedOrder.magnetSize] }} × {{ selectedOrder.quantity }}</p>
+              </div>
+              <span class="current-status">
+                סטטוס:
+                <strong [class]="'status-' + selectedOrder.status">{{ statusLabels[selectedOrder.status] }}</strong>
+              </span>
+            </div>
+
+            @if (hasImage) {
+              <div class="image-actions">
+                <button type="button" class="btn-action btn-download" [disabled]="imageLoading || !imageBlobUrl" (click)="downloadImage()">
+                  ⬇ הורדה להדפסה
+                </button>
+                <button type="button" class="btn-action" [disabled]="imageLoading || !imageBlobUrl" (click)="openImage()">
+                  🔍 פתיחה בחלון
+                </button>
+                <button type="button" class="btn-action" [disabled]="imageLoading || !imageBlobUrl" (click)="printImage()">
+                  🖨 הדפסה
+                </button>
+                @if (imageLoadError) {
+                  <button type="button" class="btn-action btn-retry" (click)="retryImage()">↻ נסה שוב</button>
+                }
+              </div>
+            }
+
+            <div class="status-actions">
+              @if (canChangeStatus(OrderStatus.InProgress)) {
+                <button class="btn-primary btn-action" (click)="setStatus(OrderStatus.InProgress)">▶ התחל טיפול</button>
+              }
+              @if (canChangeStatus(OrderStatus.Ready)) {
+                <button class="btn-success btn-action" (click)="setStatus(OrderStatus.Ready)">✓ סמן כמוכן</button>
+              }
+              @if (canChangeStatus(OrderStatus.Cancelled)) {
+                <button class="btn-danger-outline btn-action" (click)="setStatus(OrderStatus.Cancelled)">✕ ביטול</button>
+              }
+            </div>
+          </div>
+
+          <div class="image-area">
+            @if (imageLoading) {
+              <div class="no-image"><p>טוען תמונה...</p></div>
+            } @else if (imageBlobUrl) {
+              <img [src]="imageBlobUrl" class="main-image" alt="תמונת הזמנה" />
+            } @else if (hasImage && imageLoadError) {
+              <div class="no-image error">
+                <p>לא ניתן לטעון את התמונה</p>
+                <button class="btn-action btn-retry" (click)="retryImage()">נסה שוב</button>
+              </div>
+            } @else {
+              <div class="no-image">
+                <p>התמונה נמחקה (סטטוס: {{ statusLabels[selectedOrder.status] }})</p>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="no-image full"><p>בחר הזמנה מהתור</p></div>
+        }
+      </main>
+
+      <aside class="stats-panel card">
+        <h2>סטטיסטיקות בלייב</h2>
+        @if (stats) {
+          <div class="stat-grid">
+            <div class="stat"><span class="stat-val">{{ stats.printedCount }}</span><span class="stat-label">הודפסו</span></div>
+            <div class="stat"><span class="stat-val">{{ stats.pendingCount }}</span><span class="stat-label">ממתינים</span></div>
+            <div class="stat"><span class="stat-val">{{ stats.averageWaitMinutes | number:'1.0-0' }}</span><span class="stat-label">זמן ממוצע (דק')</span></div>
+            <div class="stat"><span class="stat-val">{{ stats.cancelledCount }}</span><span class="stat-label">בוטלו</span></div>
+            <div class="stat full"><span class="stat-val">{{ stats.currentLoad }}</span><span class="stat-label">עומס נוכחי</span></div>
+          </div>
+        }
+      </aside>
+    </div>
+  </div>
+}

@@ -1,0 +1,89 @@
+.guest-page {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+  min-height: 100vh;
+  background: radial-gradient(ellipse at top, #2d1b3d 0%, var(--bg) 50%);
+}
+
+.guest-header {
+  text-align: center;
+  margin-bottom: 2rem;
+
+  h1 {
+    font-size: 1.5rem;
+    color: var(--primary);
+    margin: 0 0 0.75rem;
+  }
+
+  .welcome {
+    font-size: 1.1rem;
+    margin: 0;
+    line-height: 1.5;
+  }
+}
+
+.preview {
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.privacy {
+  flex-direction: row !important;
+  align-items: flex-start;
+  gap: 0.5rem;
+  color: var(--text) !important;
+
+  input { width: auto; margin-top: 0.2rem; }
+}
+
+.privacy-note {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin: -0.5rem 0 1rem;
+  padding: 0.75rem;
+  background: var(--surface-2);
+  border-radius: 8px;
+  border-right: 3px solid var(--primary);
+}
+
+.queue-card, .message-card {
+  text-align: center;
+
+  h2 { margin: 0 0 1rem; }
+  .order-num { font-size: 1.5rem; font-weight: 700; color: var(--primary); }
+  .queue-info { font-size: 1.1rem; margin: 0.5rem 0; }
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.4rem 1.2rem;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 1rem;
+  margin: 0.75rem 0;
+
+  &.status-0 { background: #3498db33; color: #74b9ff; }
+  &.status-1 { background: #fdcb6e33; color: #fdcb6e; }
+  &.status-2 { background: #00b89433; color: #00b894; }
+  &.status-3 { background: #e1705533; color: #e17055; }
+}
+
+.status-message {
+  font-size: 1rem;
+  color: var(--text-muted);
+  margin: 0 0 1rem;
+}
+
+.message-card.warning {
+  border-color: var(--warning);
+  h2 { color: var(--warning); }
+}
+
+.cancel-btn {
+  margin-top: 1.5rem;
+  width: 100%;
+}

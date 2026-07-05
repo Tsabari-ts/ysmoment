@@ -1,0 +1,62 @@
+<div class="page">
+  <header class="page-header">
+    <h1>סיכום אירוע</h1>
+    <p>האירוע הסתיים בהצלחה ❤️</p>
+  </header>
+
+  @if (summary) {
+    <div class="summary-grid card">
+      <div class="stat"><span class="val">{{ summary.totalOrders }}</span><span>סך הזמנות</span></div>
+      <div class="stat"><span class="val">{{ summary.totalMagnets }}</span><span>סך מגנטים</span></div>
+      <div class="stat"><span class="val">{{ summary.printedCount }}</span><span>הודפסו</span></div>
+      <div class="stat"><span class="val">{{ summary.cancelledCount }}</span><span>בוטלו</span></div>
+      <div class="stat"><span class="val">{{ summary.averageWaitMinutes | number:'1.0-0' }}</span><span>זמן המתנה ממוצע (דק')</span></div>
+    </div>
+
+    @if (summary.peakHours.length) {
+      <div class="card">
+        <h2>שעות עומס</h2>
+        <ul>
+          @for (p of summary.peakHours; track p.hour) {
+            <li>{{ p.hour }} — {{ p.orderCount }} הזמנות</li>
+          }
+        </ul>
+      </div>
+    }
+  }
+
+  <div class="card history-card">
+    <h2>היסטוריית הזמנות ({{ orders.length }})</h2>
+    <p class="history-note">כולל הזמנות שבוטלו · ללא תמונות</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>שם</th>
+            <th>טלפון</th>
+            <th>גודל</th>
+            <th>כמות</th>
+            <th>סטטוס</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (o of orders; track o.id) {
+            <tr [class.row-cancelled]="o.status === OrderStatus.Cancelled">
+              <td>{{ o.orderNumber }}</td>
+              <td>{{ o.customerName }}</td>
+              <td dir="ltr">{{ o.phone }}</td>
+              <td>{{ sizeLabels[o.magnetSize] }}</td>
+              <td>{{ o.quantity }}</td>
+              <td>
+                <span class="status-tag" [class]="'status-' + o.status">{{ statusLabels[o.status] }}</span>
+              </td>
+            </tr>
+          } @empty {
+            <tr><td colspan="6" class="empty-row">אין הזמנות</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

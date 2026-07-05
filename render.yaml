@@ -1,0 +1,37 @@
+services:
+  - type: web
+    name: ysmoment-api
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ConnectionStrings__DefaultConnection
+        sync: false
+      - key: Jwt__Key
+        generateValue: true
+      - key: Jwt__Issuer
+        value: YsMoment
+      - key: Jwt__Audience
+        value: YsMoment
+      - key: Admin__Username
+        sync: false
+      - key: Admin__Password
+        sync: false
+      - key: App__GuestBaseUrl
+        sync: false
+      - key: Storage__Path
+        value: uploads
+      - key: Cloudinary__CloudName
+        sync: false
+      - key: Cloudinary__ApiKey
+        sync: false
+      - key: Cloudinary__ApiSecret
+        sync: false
+      - key: Cloudinary__Folder
+        value: ysmoment
+      - key: Cors__Origins__0
+        sync: false

@@ -1,0 +1,91 @@
+<div class="guest-page">
+  <header class="guest-header">
+    <h1>צילום ומגנטים YAGEL</h1>
+    @if (event) {
+      <p class="welcome">
+        ברוכים הבאים ל{{ eventTypeLabels[event.eventType] }} של {{ event.hostNames }} ❤️
+      </p>
+    }
+  </header>
+
+  @if (event?.isEnded) {
+    <div class="card message-card">
+      <h2>האירוע הסתיים</h2>
+      <p>תודה שהשתתפתם! ❤️</p>
+    </div>
+  } @else if (event?.ordersPaused) {
+    <div class="card message-card warning">
+      <h2>יש עומס זמני במערכת ❤️</h2>
+      <p>נסו שוב בעוד מספר דקות</p>
+    </div>
+  } @else if (!event?.ordersOpen) {
+    <div class="card message-card warning">
+      <h2>קבלת הזמנות סגורה כרגע</h2>
+    </div>
+  } @else if (submitted && order) {
+    <div class="card queue-card">
+      <h2>הזמנתך התקבלה ❤️</h2>
+      <p class="order-num">הזמנה #{{ order.orderNumber }}</p>
+
+      <div class="status-badge" [class]="'status-' + order.status">
+        {{ statusLabels[order.status] }}
+      </div>
+      <p class="status-message">{{ statusMessage }}</p>
+
+      @if (order.status === OrderStatus.New || order.status === OrderStatus.InProgress) {
+        @if (order.positionInQueue) {
+          <p class="queue-info">לפניך {{ order.positionInQueue }} הזמנות</p>
+          <p class="queue-info">זמן משוער: {{ order.estimatedWaitMinutes }} דקות</p>
+        }
+      }
+      @if (order.status === OrderStatus.New) {
+        <button type="button" class="btn-danger-outline cancel-btn" (click)="cancelOrder()">ביטול הזמנה</button>
+      }
+    </div>
+  } @else if (event) {
+    <form class="card order-form" (ngSubmit)="submit()">
+      <label>
+        שם
+        <input [(ngModel)]="form.customerName" name="name" required />
+      </label>
+      <label>
+        טלפון
+        <input type="tel" [(ngModel)]="form.phone" name="phone" required dir="ltr" />
+      </label>
+
+      <label class="file-label">
+        העלאת תמונה
+        <input type="file" accept="image/jpeg,image/png,image/heic,.heic" capture="environment" (change)="onFileSelected($event)" />
+      </label>
+      @if (imagePreview) {
+        <img [src]="imagePreview" class="preview" alt="תצוגה מקדימה" />
+      }
+
+      <label>
+        גודל מגנט
+        <select [(ngModel)]="form.magnetSize" name="size">
+          @for (s of availableSizes; track s.value) {
+            <option [ngValue]="s.value">{{ s.label }}</option>
+          }
+        </select>
+      </label>
+
+      <label>
+        כמות
+        <input type="number" [min]="1" [max]="event.maxCopies" [(ngModel)]="form.quantity" name="qty" />
+      </label>
+
+      <label class="privacy">
+        <input type="checkbox" [(ngModel)]="form.privacyAccepted" name="privacy" />
+        <span>קראתי ואישרתי את מדיניות הפרטיות והתקנון</span>
+      </label>
+      <p class="privacy-note">התמונה נמחקת אוטומטית לאחר ההדפסה ואינה נשמרת במערכת</p>
+
+      @if (error) { <p class="error">{{ error }}</p> }
+
+      <button type="submit" class="btn-primary" [disabled]="loading">
+        {{ loading ? 'שולח...' : 'שלח הזמנה ❤️' }}
+      </button>
+    </form>
+  }
+</div>
