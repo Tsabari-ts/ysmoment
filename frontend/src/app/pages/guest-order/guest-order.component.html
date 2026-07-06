@@ -53,10 +53,15 @@
         <input type="tel" [(ngModel)]="form.phone" name="phone" required dir="ltr" />
       </label>
 
-      <label class="file-label">
-        העלאת תמונה
-        <input type="file" accept="image/jpeg,image/png,image/heic,.heic" (change)="onFileSelected($event)" />
-      </label>
+      <div class="file-label">
+        <span>העלאת תמונה</span>
+        <div class="upload-buttons">
+          <button type="button" class="btn-secondary" (click)="cameraInput.click()">📷 צילום</button>
+          <button type="button" class="btn-secondary" (click)="libraryInput.click()">🖼️ מהגלריה</button>
+        </div>
+        <input #cameraInput type="file" accept="image/jpeg,image/png,image/heic,.heic" capture="environment" (change)="onFileSelected($event)" hidden />
+        <input #libraryInput type="file" accept="image/jpeg,image/png,image/heic,.heic" (change)="onFileSelected($event)" hidden />
+      </div>
       @if (imagePreview) {
         <img [src]="imagePreview" class="preview" alt="תצוגה מקדימה" />
       }

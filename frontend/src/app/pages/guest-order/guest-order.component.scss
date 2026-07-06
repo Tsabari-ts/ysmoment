@@ -23,6 +23,14 @@
   }
 }
 
+.upload-buttons {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.4rem;
+
+  .btn-secondary { flex: 1; }
+}
+
 .preview {
   width: 100%;
   max-height: 200px;
