@@ -15,8 +15,8 @@ if (!apiUrl || !frontendUrl) {
 const filePath = path.join(__dirname, 'src', 'environments', 'environment.prod.ts');
 let content = fs.readFileSync(filePath, 'utf8');
 content = content
-  .replace('__API_URL__', apiUrl.replace(/\/$/, ''))
-  .replace('__FRONTEND_URL__', frontendUrl.replace(/\/$/, ''));
+  .split('__API_URL__').join(apiUrl.replace(/\/$/, ''))
+  .split('__FRONTEND_URL__').join(frontendUrl.replace(/\/$/, ''));
 
 fs.writeFileSync(filePath, content, 'utf8');
 console.log(`environment.prod.ts written with API_URL=${apiUrl} FRONTEND_URL=${frontendUrl}`);
