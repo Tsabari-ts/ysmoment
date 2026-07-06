@@ -9,7 +9,8 @@ import {
   GuestEventResponse,
   MagnetSize,
   OrderResponse,
-  OrderStatus
+  OrderStatus,
+  PublicOrderView
 } from './models';
 import { AuthService } from './auth.service';
 
@@ -85,22 +86,14 @@ export class ApiService {
   }
 
   createOrder(slug: string, formData: FormData) {
-    return this.http.post<OrderResponse>(`${environment.apiUrl}/events/${slug}/orders`, formData);
+    return this.http.post<PublicOrderView>(`${environment.apiUrl}/events/${slug}/orders`, formData);
   }
 
-  getOrderStatus(orderId: string) {
-    return this.http.get<{
-      id: string;
-      eventId: string;
-      orderNumber: number;
-      customerName: string;
-      status: OrderStatus;
-      positionInQueue?: number;
-      estimatedWaitMinutes?: number;
-    }>(`${environment.apiUrl}/orders/${orderId}/status`);
+  getOrderStatus(publicToken: string) {
+    return this.http.get<PublicOrderView>(`${environment.apiUrl}/o/${publicToken}`);
   }
 
-  cancelOrder(orderId: string) {
-    return this.http.post(`${environment.apiUrl}/orders/${orderId}/cancel`, null);
+  cancelOrder(publicToken: string) {
+    return this.http.post<PublicOrderView>(`${environment.apiUrl}/o/${publicToken}/cancel`, null);
   }
 }

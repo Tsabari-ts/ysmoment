@@ -8,8 +8,8 @@ import {
   EVENT_TYPE_LABELS,
   GuestEventResponse,
   MagnetSize,
-  OrderResponse,
   OrderStatus,
+  PublicOrderView,
   SIZE_LABELS,
   STATUS_LABELS
 } from '../../core/models';
@@ -40,7 +40,7 @@ export class GuestOrderComponent implements OnInit, OnDestroy {
   loading = false;
   error = '';
   submitted = false;
-  order?: OrderResponse;
+  order?: PublicOrderView;
   OrderStatus = OrderStatus;
   statusLabels = STATUS_LABELS;
   private pollSub?: Subscription;
@@ -102,7 +102,7 @@ export class GuestOrderComponent implements OnInit, OnDestroy {
       next: (order) => {
         this.order = order;
         this.submitted = true;
-        this.startPolling(order.id);
+        this.startPolling(order.publicToken);
       },
       error: (err) => {
         this.error = err.error?.message || 'שגיאה בשליחת ההזמנה';
@@ -114,7 +114,7 @@ export class GuestOrderComponent implements OnInit, OnDestroy {
 
   cancelOrder(): void {
     if (!this.order || !confirm('לבטל את ההזמנה?')) return;
-    this.api.cancelOrder(this.order.id).subscribe({
+    this.api.cancelOrder(this.order.publicToken).subscribe({
       next: () => {
         this.submitted = false;
         this.order = undefined;
@@ -140,9 +140,9 @@ export class GuestOrderComponent implements OnInit, OnDestroy {
     }
   }
 
-  private startPolling(orderId: string): void {
+  private startPolling(publicToken: string): void {
     this.pollSub = interval(5000)
-      .pipe(switchMap(() => this.api.getOrderStatus(orderId)))
+      .pipe(switchMap(() => this.api.getOrderStatus(publicToken)))
       .subscribe((status) => {
         if (this.order) {
           this.order = {
