@@ -55,7 +55,7 @@
 
       <label class="file-label">
         העלאת תמונה
-        <input type="file" accept="image/jpeg,image/png,image/heic,.heic" capture="environment" (change)="onFileSelected($event)" />
+        <input type="file" accept="image/jpeg,image/png,image/heic,.heic" (change)="onFileSelected($event)" />
       </label>
       @if (imagePreview) {
         <img [src]="imagePreview" class="preview" alt="תצוגה מקדימה" />
