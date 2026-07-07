@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using YsMoment.Api.Services;
 using YsMoment.Core.DTOs;
 using YsMoment.Infrastructure.Services;
 
@@ -10,8 +11,13 @@ namespace YsMoment.Api.Controllers;
 public class PublicOrderController : ControllerBase
 {
     private readonly OrderService _orders;
+    private readonly RealtimeNotifier _notifier;
 
-    public PublicOrderController(OrderService orders) => _orders = orders;
+    public PublicOrderController(OrderService orders, RealtimeNotifier notifier)
+    {
+        _orders = orders;
+        _notifier = notifier;
+    }
 
     [EnableRateLimiting("guest-read")]
     [HttpGet("o/{token}")]
@@ -30,6 +36,7 @@ public class PublicOrderController : ControllerBase
         {
             var order = await _orders.UpdateByTokenAsync(token, request);
             if (order == null) return NotFound();
+            await _notifier.NotifyEventUpdateAsync(order.EventId);
             return Ok(order);
         }
         catch (InvalidOperationException ex)
@@ -44,6 +51,7 @@ public class PublicOrderController : ControllerBase
     {
         var order = await _orders.CancelByTokenAsync(token);
         if (order == null) return BadRequest(new { message = "לא ניתן לבטל הזמנה זו." });
+        await _notifier.NotifyEventUpdateAsync(order.EventId);
         return Ok(order);
     }
 
