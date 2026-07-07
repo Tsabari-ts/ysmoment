@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { interval, Subscription, switchMap } from 'rxjs';
 import { ApiService } from '../../core/api.service';
 import {
@@ -13,7 +13,7 @@ import {
   SIZE_LABELS,
   STATUS_LABELS
 } from '../../core/models';
-import { PRIVACY_POLICY_HTML, TERMS_OF_USE_HTML } from '../../core/legal-content';
+import { ACCESSIBILITY_STATEMENT_HTML, PRIVACY_POLICY_HTML, TERMS_OF_USE_HTML } from '../../core/legal-content';
 import { ModalComponent } from '../../shared/modal/modal.component';
 
 const WHATSAPP_CONTACT_URL =
@@ -33,7 +33,7 @@ function defaultForm() {
 @Component({
   selector: 'app-guest-order',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, ModalComponent],
+  imports: [CommonModule, FormsModule, ModalComponent],
   templateUrl: './guest-order.component.html',
   styleUrl: './guest-order.component.scss'
 })
@@ -65,9 +65,10 @@ export class GuestOrderComponent implements OnInit, OnDestroy {
   phoneError = '';
   quantityError = '';
 
-  legalDocOpen: 'privacy' | 'terms' | null = null;
+  legalDocOpen: 'privacy' | 'terms' | 'accessibility' | null = null;
   privacyPolicyHtml = PRIVACY_POLICY_HTML;
   termsOfUseHtml = TERMS_OF_USE_HTML;
+  accessibilityStatementHtml = ACCESSIBILITY_STATEMENT_HTML;
 
   private pollSub?: Subscription;
   private fallbackTimer?: ReturnType<typeof setTimeout>;
@@ -226,7 +227,7 @@ export class GuestOrderComponent implements OnInit, OnDestroy {
     this.bannerDismissed = true;
   }
 
-  openLegalDoc(doc: 'privacy' | 'terms'): void {
+  openLegalDoc(doc: 'privacy' | 'terms' | 'accessibility'): void {
     this.legalDocOpen = doc;
   }
 

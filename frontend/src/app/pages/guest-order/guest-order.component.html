@@ -160,7 +160,7 @@
       <span aria-hidden="true">·</span>
       <button type="button" class="link-btn" (click)="openLegalDoc('terms')">תקנון שימוש</button>
       <span aria-hidden="true">·</span>
-      <a routerLink="/accessibility">הצהרת נגישות</a>
+      <button type="button" class="link-btn" (click)="openLegalDoc('accessibility')">הצהרת נגישות</button>
     </nav>
   </footer>
 </div>
@@ -173,4 +173,9 @@
 <app-modal [open]="legalDocOpen === 'terms'" label="תקנון שימוש" (closed)="closeLegalDoc()">
   <h2 class="visually-hidden">תקנון שימוש</h2>
   <div [innerHTML]="termsOfUseHtml"></div>
+</app-modal>
+
+<app-modal [open]="legalDocOpen === 'accessibility'" label="הצהרת נגישות" (closed)="closeLegalDoc()">
+  <h2 class="visually-hidden">הצהרת נגישות</h2>
+  <div [innerHTML]="accessibilityStatementHtml"></div>
 </app-modal>

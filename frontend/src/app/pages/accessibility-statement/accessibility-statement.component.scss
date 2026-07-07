@@ -15,8 +15,10 @@
 }
 
 .legal-content {
-  h2 { font-size: 1.1rem; margin: 1.5rem 0 0.5rem; color: var(--primary); }
-  p, li { font-size: 0.95rem; line-height: 1.7; }
-  ul { padding-inline-start: 1.5rem; }
-  a { color: var(--primary); }
+  ::ng-deep {
+    h2 { font-size: 1.1rem; margin: 1.5rem 0 0.5rem; color: var(--primary); }
+    p, li { font-size: 0.95rem; line-height: 1.7; }
+    ul { padding-inline-start: 1.5rem; }
+    a { color: var(--primary); }
+  }
 }
