@@ -80,9 +80,11 @@ Full step-by-step instructions (Neon, Cloudinary, Render, Vercel) live in [DEPLO
 | Image storage | Cloudinary (free) | Used automatically in non-Development environments |
 
 **Before deploying, set these on the backend host** (see `backend/.env.example` for the full list):
-`ASPNETCORE_ENVIRONMENT=Production`, `ConnectionStrings__DefaultConnection`, `Jwt__Key` (≥32 random chars), `Jwt__Issuer`, `Jwt__Audience`, `Admin__Username`, `Admin__Password`, `App__GuestBaseUrl`, `Cors__Origins__0`, `Cloudinary__CloudName`, `Cloudinary__ApiKey`, `Cloudinary__ApiSecret`.
+`ASPNETCORE_ENVIRONMENT=Production`, `ConnectionStrings__DefaultConnection`, `Jwt__Key` (≥32 random chars), `Jwt__Issuer`, `Jwt__Audience`, `Admin__Username`, `Admin__Password`, `App__GuestBaseUrl`, `Cors__Origins__0`, `Cloudinary__CloudName`, `Cloudinary__ApiKey`, `Cloudinary__ApiSecret`, `Sms4Free__Key`, `Sms4Free__User`, `Sms4Free__Pass`, `Sms4Free__Sender`.
 
-The API now **fails fast at startup** in any non-Development environment if `Jwt:Key`, `App:GuestBaseUrl`, or `Cors:Origins` are missing — this surfaces misconfiguration as a crash-on-boot in the host logs instead of silently generating broken guest/QR links or a locked-down CORS policy.
+The API now **fails fast at startup** in any non-Development environment if `Jwt:Key`, `App:GuestBaseUrl`, `Cors:Origins`, or the `Sms4Free:*` keys are missing — this surfaces misconfiguration as a crash-on-boot in the host logs instead of silently generating broken guest/QR links, a locked-down CORS policy, or an SMS provider with no credentials.
+
+Order-confirmation, order-ready, and event-ended SMS messages are sent via [SMS4Free](https://www.sms4free.co.il) in production (console-logged in Development). Sends are queued and retried in the background so a slow/failed provider response never blocks the guest order flow; if every retry fails, the order is flagged in the admin dashboard ("⚠ שליחת ה-SMS נכשלה") so staff can follow up manually.
 
 **Before deploying, set these on the frontend host** (see `frontend/.env.example`):
 `API_URL` (backend URL, no trailing slash), `FRONTEND_URL` (frontend URL, no trailing slash). Both are injected into `environment.prod.ts` at build time by `frontend/set-env.js` — never commit real values into that file.

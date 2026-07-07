@@ -35,3 +35,11 @@ services:
         value: ysmoment
       - key: Cors__Origins__0
         sync: false
+      - key: Sms4Free__Key
+        sync: false
+      - key: Sms4Free__User
+        sync: false
+      - key: Sms4Free__Pass
+        sync: false
+      - key: Sms4Free__Sender
+        sync: false

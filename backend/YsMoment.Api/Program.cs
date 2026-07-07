@@ -99,6 +99,10 @@ if (!builder.Environment.IsDevelopment())
         throw new InvalidOperationException("App:GuestBaseUrl is required in production (used to build guest QR code URLs).");
     if ((builder.Configuration.GetSection("Cors:Origins").Get<string[]>() ?? []).Length == 0)
         throw new InvalidOperationException("Cors:Origins must list at least the deployed frontend origin in production.");
+
+    foreach (var key in new[] { "Sms4Free:Key", "Sms4Free:User", "Sms4Free:Pass", "Sms4Free:Sender" })
+        if (string.IsNullOrWhiteSpace(builder.Configuration[key]))
+            throw new InvalidOperationException($"{key} is required in production (used to send order/status SMS messages).");
 }
 
 var app = builder.Build();

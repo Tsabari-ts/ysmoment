@@ -11,7 +11,7 @@ namespace YsMoment.Infrastructure.Services;
 public class EventService
 {
     private readonly AppDbContext _db;
-    private readonly IWhatsAppService _whatsApp;
+    private readonly ISmsQueue _smsQueue;
     private readonly IImageStorageService _storage;
     private readonly string _guestBaseUrl;
     private const string Chars = "abcdefghijklmnopqrstuvwxyz0123456789";
@@ -19,10 +19,10 @@ public class EventService
 
     private static readonly RandomNumberGenerator Rng = RandomNumberGenerator.Create();
 
-    public EventService(AppDbContext db, IWhatsAppService whatsApp, IImageStorageService storage, Microsoft.Extensions.Configuration.IConfiguration config)
+    public EventService(AppDbContext db, ISmsQueue smsQueue, IImageStorageService storage, Microsoft.Extensions.Configuration.IConfiguration config)
     {
         _db = db;
-        _whatsApp = whatsApp;
+        _smsQueue = smsQueue;
         _storage = storage;
         _guestBaseUrl = config["App:GuestBaseUrl"] ?? "http://localhost:4200/e";
     }
@@ -111,7 +111,7 @@ public class EventService
             .Distinct();
 
         foreach (var phone in phones)
-            await _whatsApp.SendEventThankYouAsync(phone, ratingUrl);
+            _smsQueue.Enqueue(new EventThankYouSmsJob(null, phone, ratingUrl));
 
         await _db.SaveChangesAsync();
         return await GetSummaryAsync(id);

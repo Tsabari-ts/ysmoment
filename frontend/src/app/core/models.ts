@@ -67,6 +67,7 @@ export interface OrderResponse {
   positionInQueue?: number;
   estimatedWaitMinutes?: number;
   waitMinutes: number;
+  notificationFailed: boolean;
 }
 
 export interface PublicOrderView {

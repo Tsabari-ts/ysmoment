@@ -12,14 +12,14 @@ public class OrderService
 {
     private readonly AppDbContext _db;
     private readonly IImageStorageService _storage;
-    private readonly IWhatsAppService _whatsApp;
+    private readonly ISmsQueue _smsQueue;
     private readonly VerificationCodeService _verification;
 
-    public OrderService(AppDbContext db, IImageStorageService storage, IWhatsAppService whatsApp, VerificationCodeService verification)
+    public OrderService(AppDbContext db, IImageStorageService storage, ISmsQueue smsQueue, VerificationCodeService verification)
     {
         _db = db;
         _storage = storage;
-        _whatsApp = whatsApp;
+        _smsQueue = smsQueue;
         _verification = verification;
     }
 
@@ -160,7 +160,7 @@ public class OrderService
         var position = queue.Count;
         var estimated = position * evt.AveragePrepTimeMinutes;
 
-        await _whatsApp.SendOrderConfirmationAsync(order.Phone, order.CustomerName, order.OrderNumber, position, estimated);
+        _smsQueue.Enqueue(new OrderConfirmationSmsJob(order.Id, order.Phone, order.CustomerName, order.OrderNumber, position, estimated));
 
         return MapPublicOrder(order, evt, position);
     }
@@ -278,7 +278,7 @@ public class OrderService
             await _storage.DeleteAsync(order.ImagePath);
             order.ImagePath = null;
             order.ImageDeleted = true;
-            await _whatsApp.SendOrderReadyAsync(order.Phone, order.CustomerName);
+            _smsQueue.Enqueue(new OrderReadySmsJob(order.Id, order.Phone, order.CustomerName));
         }
 
         await _db.SaveChangesAsync();
@@ -375,7 +375,7 @@ public class OrderService
             order.Id, order.EventId, order.OrderNumber, order.CustomerName, order.Phone,
             _storage.GetPublicUrl(order.ImagePath),
             order.MagnetSize, order.Quantity, order.Status,
-            order.CreatedAt, position > 0 ? position : null, estimated, wait);
+            order.CreatedAt, position > 0 ? position : null, estimated, wait, order.NotificationFailed);
     }
 
     private static bool IsSizeAvailable(Event evt, MagnetSize size) => size switch

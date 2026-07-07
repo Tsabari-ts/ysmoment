@@ -30,7 +30,8 @@ public record OrderResponse(
     DateTime CreatedAt,
     int? PositionInQueue,
     int? EstimatedWaitMinutes,
-    int WaitMinutes
+    int WaitMinutes,
+    bool NotificationFailed
 );
 
 public record OrderStatusResponse(

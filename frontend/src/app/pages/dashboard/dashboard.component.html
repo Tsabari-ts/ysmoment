@@ -52,6 +52,9 @@
               </div>
               <p class="order-name">{{ order.customerName }}</p>
               <p class="order-meta">{{ sizeLabels[order.magnetSize] }} × {{ order.quantity }} · {{ order.waitMinutes }} דק'</p>
+              @if (order.notificationFailed) {
+                <p class="notify-failed">⚠ שליחת ה-SMS נכשלה</p>
+              }
             </div>
           } @empty {
             <p class="empty">אין הזמנות עדיין</p>

@@ -4,14 +4,14 @@ using YsMoment.Core.Interfaces;
 namespace YsMoment.Infrastructure.Services;
 
 /// <summary>
-/// Stub implementation — logs WhatsApp messages to console.
-/// Replace with real provider (Twilio, Green API, etc.) when ready.
+/// Development stub — logs SMS messages to console/log instead of sending them.
+/// Real sending is done by <see cref="Sms4FreeService"/> in non-Development environments.
 /// </summary>
-public class ConsoleWhatsAppService : IWhatsAppService
+public class ConsoleSmsService : ISmsService
 {
-    private readonly ILogger<ConsoleWhatsAppService> _logger;
+    private readonly ILogger<ConsoleSmsService> _logger;
 
-    public ConsoleWhatsAppService(ILogger<ConsoleWhatsAppService> logger)
+    public ConsoleSmsService(ILogger<ConsoleSmsService> logger)
     {
         _logger = logger;
     }

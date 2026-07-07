@@ -26,7 +26,15 @@ public static class DependencyInjection
             services.AddScoped<IImageStorageService, LocalImageStorageService>();
         else
             services.AddScoped<IImageStorageService, CloudinaryImageStorageService>();
-        services.AddScoped<IWhatsAppService, ConsoleWhatsAppService>();
+
+        if (env.IsDevelopment())
+            services.AddScoped<ISmsService, ConsoleSmsService>();
+        else
+            services.AddHttpClient<ISmsService, Sms4FreeService>();
+        services.AddSingleton<SmsQueue>();
+        services.AddSingleton<ISmsQueue>(sp => sp.GetRequiredService<SmsQueue>());
+        services.AddHostedService<SmsBackgroundService>();
+
         services.AddScoped<EventService>();
         services.AddScoped<OrderService>();
         services.AddScoped<AuthService>();
