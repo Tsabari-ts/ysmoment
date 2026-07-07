@@ -96,4 +96,8 @@ export class ApiService {
   cancelOrder(publicToken: string) {
     return this.http.post<PublicOrderView>(`${environment.apiUrl}/o/${publicToken}/cancel`, null);
   }
+
+  reportClientIssue(payload: object) {
+    return this.http.post(`${environment.apiUrl}/diagnostics/client-error`, payload);
+  }
 }

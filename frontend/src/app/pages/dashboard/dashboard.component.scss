@@ -31,6 +31,23 @@
   border-radius: 8px;
 }
 
+.qr-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.toggle-inline {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  white-space: nowrap;
+
+  input { width: auto; }
+}
+
 .dash-layout {
   flex: 1;
   display: grid;

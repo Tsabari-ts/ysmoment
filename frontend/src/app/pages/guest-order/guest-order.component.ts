@@ -14,6 +14,20 @@ import {
   STATUS_LABELS
 } from '../../core/models';
 
+const WHATSAPP_CONTACT_URL =
+  'https://api.whatsapp.com/send?phone=972524225365&text=' +
+  encodeURIComponent('היי, אשמח לשמוע פרטים נוספים על שירות הברקוד ולסגור אירוע');
+
+function defaultForm() {
+  return {
+    customerName: '',
+    phone: '',
+    magnetSize: MagnetSize.Medium,
+    quantity: 1,
+    privacyAccepted: false
+  };
+}
+
 @Component({
   selector: 'app-guest-order',
   standalone: true,
@@ -26,24 +40,31 @@ export class GuestOrderComponent implements OnInit, OnDestroy {
   event?: GuestEventResponse;
   sizes = SIZE_LABELS;
   eventTypeLabels = EVENT_TYPE_LABELS;
+  whatsappContactUrl = WHATSAPP_CONTACT_URL;
 
-  form = {
-    customerName: '',
-    phone: '',
-    magnetSize: MagnetSize.Medium,
-    quantity: 1,
-    privacyAccepted: false
-  };
+  form = defaultForm();
 
   imageFile?: File;
   imagePreview?: string;
   loading = false;
   error = '';
   submitted = false;
+  cancelled = false;
   order?: PublicOrderView;
   OrderStatus = OrderStatus;
   statusLabels = STATUS_LABELS;
+
+  loadFailed = false;
+  showFallback = false;
+  diagnosticsSent = false;
+  bannerDismissed = false;
+
+  nameError = '';
+  phoneError = '';
+  quantityError = '';
+
   private pollSub?: Subscription;
+  private fallbackTimer?: ReturnType<typeof setTimeout>;
 
   constructor(private route: ActivatedRoute, private api: ApiService) {}
 
@@ -51,12 +72,16 @@ export class GuestOrderComponent implements OnInit, OnDestroy {
     this.slug = this.route.snapshot.paramMap.get('slug') || '';
     this.api.getGuestEvent(this.slug).subscribe({
       next: (evt) => (this.event = evt),
-      error: () => (this.error = 'האירוע לא נמצא')
+      error: () => (this.loadFailed = true)
     });
+    this.fallbackTimer = setTimeout(() => {
+      if (!this.event && !this.loadFailed) this.showFallback = true;
+    }, 8000);
   }
 
   ngOnDestroy(): void {
     this.pollSub?.unsubscribe();
+    if (this.fallbackTimer) clearTimeout(this.fallbackTimer);
   }
 
   get availableSizes(): { value: MagnetSize; label: string }[] {
@@ -78,7 +103,47 @@ export class GuestOrderComponent implements OnInit, OnDestroy {
     reader.readAsDataURL(file);
   }
 
+  validateName(): boolean {
+    if (!this.form.customerName.trim()) {
+      this.nameError = 'נא להזין שם מלא';
+      return false;
+    }
+    this.nameError = '';
+    return true;
+  }
+
+  validatePhone(): boolean {
+    if (!this.normalizeIsraeliPhone(this.form.phone)) {
+      this.phoneError = 'נא להזין מספר טלפון תקין';
+      return false;
+    }
+    this.phoneError = '';
+    return true;
+  }
+
+  validateQuantity(): boolean {
+    const max = this.event?.maxCopies ?? 1;
+    if (!this.form.quantity || this.form.quantity < 1 || this.form.quantity > max) {
+      this.quantityError = `ניתן לבחור עד ${max} מגנטים`;
+      return false;
+    }
+    this.quantityError = '';
+    return true;
+  }
+
+  private normalizeIsraeliPhone(phone: string): string | null {
+    let digits = (phone || '').replace(/[^\d+]/g, '');
+    if (digits.startsWith('+972')) digits = '0' + digits.slice(4);
+    else if (digits.startsWith('972')) digits = '0' + digits.slice(3);
+    return /^05\d{8}$/.test(digits) ? digits : null;
+  }
+
   submit(): void {
+    const nameOk = this.validateName();
+    const phoneOk = this.validatePhone();
+    const qtyOk = this.validateQuantity();
+    if (!nameOk || !phoneOk || !qtyOk) return;
+
     if (!this.imageFile) {
       this.error = 'יש להעלות תמונה';
       return;
@@ -116,11 +181,44 @@ export class GuestOrderComponent implements OnInit, OnDestroy {
     if (!this.order || !confirm('לבטל את ההזמנה?')) return;
     this.api.cancelOrder(this.order.publicToken).subscribe({
       next: () => {
+        this.pollSub?.unsubscribe();
         this.submitted = false;
         this.order = undefined;
-        this.pollSub?.unsubscribe();
+        this.cancelled = true;
       },
       error: (err) => (this.error = err.error?.message || 'לא ניתן לבטל')
+    });
+  }
+
+  startNewOrder(): void {
+    this.cancelled = false;
+    this.submitted = false;
+    this.order = undefined;
+    this.imageFile = undefined;
+    this.imagePreview = undefined;
+    this.form = defaultForm();
+    this.nameError = '';
+    this.phoneError = '';
+    this.quantityError = '';
+    this.error = '';
+  }
+
+  dismissBanner(): void {
+    this.bannerDismissed = true;
+  }
+
+  reportLoadIssue(): void {
+    const payload = {
+      slug: this.slug,
+      url: window.location.href,
+      userAgent: navigator.userAgent,
+      online: navigator.onLine,
+      timestamp: new Date().toISOString(),
+      state: this.loadFailed ? 'load-failed' : this.event ? 'loaded' : 'still-loading'
+    };
+    this.api.reportClientIssue(payload).subscribe({
+      next: () => (this.diagnosticsSent = true),
+      error: () => (this.diagnosticsSent = true)
     });
   }
 

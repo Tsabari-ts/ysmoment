@@ -6,6 +6,69 @@
   background: radial-gradient(ellipse at top, #2d1b3d 0%, var(--bg) 50%);
 }
 
+.refresh-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  background: #fdcb6e22;
+  border: 1px solid var(--warning);
+  color: var(--warning);
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8rem;
+  margin-bottom: 1rem;
+
+  .banner-close {
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+  }
+}
+
+.ready-msg {
+  text-align: center;
+  color: var(--text-muted);
+  margin: -0.5rem 0 1rem;
+}
+
+.field-error {
+  color: var(--danger);
+  font-size: 0.8rem;
+  margin: -0.5rem 0 0.5rem;
+}
+
+.hint {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin: 0.2rem 0 0;
+}
+
+.diag-sent {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.contact-footer {
+  text-align: center;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+
+  .whatsapp-link {
+    display: inline-block;
+    margin-top: 0.4rem;
+    color: #00b894;
+    text-decoration: none;
+    font-weight: 600;
+  }
+}
+
 .guest-header {
   text-align: center;
   margin-bottom: 2rem;

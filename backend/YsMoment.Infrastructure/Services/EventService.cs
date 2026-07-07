@@ -98,6 +98,13 @@ public class EventService
         evt.OrdersOpen = false;
         evt.EndedAt = DateTime.UtcNow;
 
+        foreach (var order in evt.Orders.Where(o => !o.ImageDeleted && !string.IsNullOrEmpty(o.ImagePath)))
+        {
+            await _storage.DeleteAsync(order.ImagePath!);
+            order.ImagePath = null;
+            order.ImageDeleted = true;
+        }
+
         var phones = evt.Orders
             .Where(o => o.Status != OrderStatus.Cancelled)
             .Select(o => o.Phone)

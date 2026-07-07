@@ -186,6 +186,26 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
   }
 
+  toggleActive(value: boolean): void {
+    this.api.updateEventSettings(this.eventId, { isActive: value }).subscribe((evt) => {
+      this.event = evt;
+    });
+  }
+
+  toggleOrdersOpen(value: boolean): void {
+    this.api.updateEventSettings(this.eventId, { ordersOpen: value }).subscribe((evt) => {
+      this.event = evt;
+    });
+  }
+
+  downloadQr(): void {
+    if (!this.event?.qrCodeBase64) return;
+    const a = document.createElement('a');
+    a.href = 'data:image/png;base64,' + this.event.qrCodeBase64;
+    a.download = `barcode-${this.event.slug}.png`;
+    a.click();
+  }
+
   endEvent(): void {
     if (!confirm('לסיים את האירוע? פעולה זו תשלח הודעות תודה לכל הלקוחות.')) return;
     this.api.endEvent(this.eventId).subscribe(() => {

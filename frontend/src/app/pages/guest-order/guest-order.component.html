@@ -1,4 +1,11 @@
 <div class="guest-page">
+  @if (!bannerDismissed && event && !event.isEnded && !cancelled) {
+    <div class="refresh-banner">
+      <span>⚠️ שימו לב: אל תרעננו את הדף באמצע ההזמנה, זה יחזיר אתכם להתחלה</span>
+      <button type="button" class="banner-close" (click)="dismissBanner()" aria-label="סגור">✕</button>
+    </div>
+  }
+
   <header class="guest-header">
     <h1>צילום ומגנטים YAGEL</h1>
     @if (event) {
@@ -8,17 +15,44 @@
     }
   </header>
 
-  @if (event?.isEnded) {
+  @if (loadFailed) {
+    <div class="card message-card warning">
+      <h2>משהו השתבש</h2>
+      <p>לא הצלחנו לטעון את פרטי האירוע. בדקו את החיבור לאינטרנט ונסו לרענן.</p>
+      @if (!diagnosticsSent) {
+        <button type="button" class="btn-secondary" (click)="reportLoadIssue()">הדף לא נטען? לחצו כאן ואנחנו נטפל בזה</button>
+      } @else {
+        <p class="diag-sent">תודה, קיבלנו את הדיווח 🙏</p>
+      }
+    </div>
+  } @else if (!event) {
+    <div class="card message-card">
+      <h2>רק רגע, טוענים עבורכם...</h2>
+      @if (showFallback) {
+        @if (!diagnosticsSent) {
+          <button type="button" class="btn-secondary" (click)="reportLoadIssue()">הדף לא נטען? לחצו כאן ואנחנו נטפל בזה</button>
+        } @else {
+          <p class="diag-sent">תודה, קיבלנו את הדיווח 🙏</p>
+        }
+      }
+    </div>
+  } @else if (cancelled) {
+    <div class="card message-card">
+      <h2>איזה באסה שביטלת 😕</h2>
+      <p>רוצה להתחיל הזמנה חדשה?</p>
+      <button type="button" class="btn-primary" (click)="startNewOrder()">כן, בוא נתחיל הזמנה חדשה</button>
+    </div>
+  } @else if (event.isEnded) {
     <div class="card message-card">
       <h2>האירוע הסתיים</h2>
       <p>תודה שהשתתפתם! ❤️</p>
     </div>
-  } @else if (event?.ordersPaused) {
+  } @else if (event.ordersPaused) {
     <div class="card message-card warning">
       <h2>יש עומס זמני במערכת ❤️</h2>
       <p>נסו שוב בעוד מספר דקות</p>
     </div>
-  } @else if (!event?.ordersOpen) {
+  } @else if (!event.ordersOpen) {
     <div class="card message-card warning">
       <h2>קבלת הזמנות סגורה כרגע</h2>
     </div>
@@ -42,16 +76,20 @@
         <button type="button" class="btn-danger-outline cancel-btn" (click)="cancelOrder()">ביטול הזמנה</button>
       }
     </div>
-  } @else if (event) {
+  } @else {
+    <p class="ready-msg">תוכלו כבר עכשיו לבחור תמונה ולשלוח להדפסה 📸</p>
     <form class="card order-form" (ngSubmit)="submit()">
       <label>
         שם
-        <input [(ngModel)]="form.customerName" name="name" required />
+        <input [(ngModel)]="form.customerName" name="name" required (blur)="validateName()" />
       </label>
+      @if (nameError) { <p class="field-error">{{ nameError }}</p> }
+
       <label>
         טלפון
-        <input type="tel" [(ngModel)]="form.phone" name="phone" required dir="ltr" />
+        <input type="tel" [(ngModel)]="form.phone" name="phone" required dir="ltr" (blur)="validatePhone()" />
       </label>
+      @if (phoneError) { <p class="field-error">{{ phoneError }}</p> }
 
       <div class="file-label">
         <span>העלאת תמונה</span>
@@ -77,8 +115,10 @@
 
       <label>
         כמות
-        <input type="number" [min]="1" [max]="event.maxCopies" [(ngModel)]="form.quantity" name="qty" />
+        <input type="number" [min]="1" [max]="event.maxCopies" [(ngModel)]="form.quantity" name="qty" (ngModelChange)="validateQuantity()" />
       </label>
+      <p class="hint">ניתן לבחור עד {{ event.maxCopies }} מגנטים</p>
+      @if (quantityError) { <p class="field-error">{{ quantityError }}</p> }
 
       <label class="privacy">
         <input type="checkbox" [(ngModel)]="form.privacyAccepted" name="privacy" />
@@ -88,9 +128,16 @@
 
       @if (error) { <p class="error">{{ error }}</p> }
 
-      <button type="submit" class="btn-primary" [disabled]="loading">
+      <button type="submit" class="btn-primary" [disabled]="loading || !!quantityError">
         {{ loading ? 'שולח...' : 'שלח הזמנה ❤️' }}
       </button>
     </form>
   }
+
+  <footer class="contact-footer">
+    <p>אהבתם את השירות? 😍</p>
+    <a class="whatsapp-link" [href]="whatsappContactUrl" target="_blank" rel="noopener noreferrer">
+      💬 דברו איתנו בוואטסאפ לסגירת אירוע
+    </a>
+  </footer>
 </div>
