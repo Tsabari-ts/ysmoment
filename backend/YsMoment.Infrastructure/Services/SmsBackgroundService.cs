@@ -85,7 +85,7 @@ public class SmsBackgroundService : BackgroundService
     {
         OrderConfirmationSmsJob j => sms.SendOrderConfirmationAsync(j.Phone, j.CustomerName, j.OrderNumber, j.QueuePosition, j.EstimatedMinutes),
         OrderReadySmsJob j => sms.SendOrderReadyAsync(j.Phone, j.CustomerName),
-        EventThankYouSmsJob j => sms.SendEventThankYouAsync(j.Phone, j.RatingUrl),
+        EventThankYouSmsJob j => sms.SendEventThankYouAsync(j.Phone),
         _ => Task.CompletedTask
     };
 

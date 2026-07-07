@@ -89,7 +89,7 @@ public class EventService
         return ToResponse(evt, includeQr: false);
     }
 
-    public async Task<EventSummaryResponse?> EndEventAsync(Guid id, string ratingUrl)
+    public async Task<EventSummaryResponse?> EndEventAsync(Guid id)
     {
         var evt = await _db.Events.Include(e => e.Orders).FirstOrDefaultAsync(e => e.Id == id);
         if (evt == null) return null;
@@ -111,7 +111,7 @@ public class EventService
             .Distinct();
 
         foreach (var phone in phones)
-            _smsQueue.Enqueue(new EventThankYouSmsJob(null, phone, ratingUrl));
+            _smsQueue.Enqueue(new EventThankYouSmsJob(null, phone));
 
         await _db.SaveChangesAsync();
         return await GetSummaryAsync(id);

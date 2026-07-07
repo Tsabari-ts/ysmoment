@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { interval, Subscription, switchMap } from 'rxjs';
 import { ApiService } from '../../core/api.service';
 import {
@@ -13,6 +13,8 @@ import {
   SIZE_LABELS,
   STATUS_LABELS
 } from '../../core/models';
+import { PRIVACY_POLICY_HTML, TERMS_OF_USE_HTML } from '../../core/legal-content';
+import { ModalComponent } from '../../shared/modal/modal.component';
 
 const WHATSAPP_CONTACT_URL =
   'https://api.whatsapp.com/send?phone=972524225365&text=' +
@@ -31,7 +33,7 @@ function defaultForm() {
 @Component({
   selector: 'app-guest-order',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink, ModalComponent],
   templateUrl: './guest-order.component.html',
   styleUrl: './guest-order.component.scss'
 })
@@ -63,6 +65,10 @@ export class GuestOrderComponent implements OnInit, OnDestroy {
   phoneError = '';
   quantityError = '';
 
+  legalDocOpen: 'privacy' | 'terms' | null = null;
+  privacyPolicyHtml = PRIVACY_POLICY_HTML;
+  termsOfUseHtml = TERMS_OF_USE_HTML;
+
   private pollSub?: Subscription;
   private fallbackTimer?: ReturnType<typeof setTimeout>;
 
@@ -70,6 +76,15 @@ export class GuestOrderComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.slug = this.route.snapshot.paramMap.get('slug') || '';
+    this.loadEvent();
+  }
+
+  private loadEvent(): void {
+    this.event = undefined;
+    this.loadFailed = false;
+    this.showFallback = false;
+    if (this.fallbackTimer) clearTimeout(this.fallbackTimer);
+
     this.api.getGuestEvent(this.slug).subscribe({
       next: (evt) => (this.event = evt),
       error: () => (this.loadFailed = true)
@@ -201,10 +216,22 @@ export class GuestOrderComponent implements OnInit, OnDestroy {
     this.phoneError = '';
     this.quantityError = '';
     this.error = '';
+    // Re-check event/order availability from scratch instead of trusting the
+    // event snapshot fetched when the guest first opened this page — it may
+    // have since closed, paused, or ended while they were mid-order.
+    this.loadEvent();
   }
 
   dismissBanner(): void {
     this.bannerDismissed = true;
+  }
+
+  openLegalDoc(doc: 'privacy' | 'terms'): void {
+    this.legalDocOpen = doc;
+  }
+
+  closeLegalDoc(): void {
+    this.legalDocOpen = null;
   }
 
   reportLoadIssue(): void {

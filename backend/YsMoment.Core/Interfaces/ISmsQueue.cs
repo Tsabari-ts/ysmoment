@@ -7,7 +7,7 @@ public sealed record OrderConfirmationSmsJob(
 
 public sealed record OrderReadySmsJob(Guid? OrderId, string Phone, string CustomerName) : SmsJob(OrderId);
 
-public sealed record EventThankYouSmsJob(Guid? OrderId, string Phone, string RatingUrl) : SmsJob(OrderId);
+public sealed record EventThankYouSmsJob(Guid? OrderId, string Phone) : SmsJob(OrderId);
 
 public interface ISmsQueue
 {

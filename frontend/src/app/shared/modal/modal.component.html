@@ -1,0 +1,16 @@
+@if (open) {
+  <div class="modal-backdrop" (click)="onBackdropClick($event)">
+    <div
+      #dialog
+      class="modal-panel card"
+      role="dialog"
+      aria-modal="true"
+      [attr.aria-label]="label"
+      tabindex="-1">
+      <button type="button" class="modal-close" (click)="close()" aria-label="סגירה">✕</button>
+      <div class="modal-body">
+        <ng-content></ng-content>
+      </div>
+    </div>
+  </div>
+}

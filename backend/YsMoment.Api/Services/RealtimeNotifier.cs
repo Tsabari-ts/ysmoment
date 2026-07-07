@@ -18,7 +18,7 @@ public class RealtimeNotifier
 
     public async Task NotifyEventUpdateAsync(Guid eventId)
     {
-        var orders = await _orders.GetQueueAsync(eventId);
+        var orders = await _orders.GetAllOrdersAsync(eventId);
         var stats = await _orders.GetStatsAsync(eventId);
         var payload = new QueueUpdatePayload(orders, stats);
         await _hub.Clients.Group(eventId.ToString()).SendAsync("QueueUpdated", payload);

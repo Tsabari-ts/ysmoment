@@ -61,9 +61,9 @@ public class EventsController : ControllerBase
 
     [Authorize]
     [HttpPost("{id:guid}/end")]
-    public async Task<ActionResult<EventSummaryResponse>> EndEvent(Guid id, [FromQuery] string ratingUrl = "https://g.page/r/yourstudio")
+    public async Task<ActionResult<EventSummaryResponse>> EndEvent(Guid id)
     {
-        var summary = await _events.EndEventAsync(id, ratingUrl);
+        var summary = await _events.EndEventAsync(id);
         if (summary == null) return NotFound();
         await _notifier.NotifyEventUpdateAsync(id);
         return Ok(summary);

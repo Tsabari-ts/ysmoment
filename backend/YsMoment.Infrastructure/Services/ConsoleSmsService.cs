@@ -16,7 +16,12 @@ public class ConsoleSmsService : ISmsService
         _logger = logger;
     }
 
-    private const string ContactUrl = "https://api.whatsapp.com/send?phone=972524225365";
+    // Client-approved final copy — exactly 134 characters, tuned to stay within a
+    // single SMS segment. Do not append anything to it (signature, extra link, etc.)
+    // without re-testing the length through the actual provider: emoji and non-GSM
+    // characters can silently shrink the per-segment budget and cause a silent split.
+    private const string EventEndedMessage =
+        "תודה שהשתתפתם באירוע והשתמשתם בשירות הברקוד שלנו📸 רוצים אותנו באירוע שלכם? בואו נדבר https://api.whatsapp.com/send?phone=972524225365";
 
     public Task SendOrderConfirmationAsync(string phone, string customerName, int orderNumber, int queuePosition, int estimatedMinutes)
     {
@@ -36,9 +41,9 @@ public class ConsoleSmsService : ISmsService
         return Task.CompletedTask;
     }
 
-    public Task SendEventThankYouAsync(string phone, string ratingUrl)
+    public Task SendEventThankYouAsync(string phone)
     {
-        var message = $"[SMS → {phone}] תודה שהשתתפתם באירוע ושהשתמשתם בשירות הברקוד שלנו! 📸 אם תרצו שנגיע גם לאירוע שלכם, נשמח לשמוע ממכם — {ContactUrl}";
+        var message = $"[SMS → {phone}] {EventEndedMessage}";
 
         _logger.LogInformation("{Message}", message);
         Console.WriteLine(message);

@@ -1,0 +1,22 @@
+.legal-page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 4rem;
+}
+
+.legal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+
+  h1 { font-size: 1.5rem; margin: 0; color: var(--primary); }
+  a { color: var(--text-muted); font-size: 0.9rem; }
+}
+
+.legal-content {
+  h2 { font-size: 1.1rem; margin: 1.5rem 0 0.5rem; color: var(--primary); }
+  p, li { font-size: 0.95rem; line-height: 1.7; }
+  ul { padding-inline-start: 1.5rem; }
+  a { color: var(--primary); }
+}

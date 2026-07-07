@@ -1,8 +1,8 @@
 <div class="guest-page">
   @if (!bannerDismissed && event && !event.isEnded && !cancelled) {
-    <div class="refresh-banner">
+    <div class="refresh-banner" role="status">
       <span>⚠️ שימו לב: אל תרעננו את הדף באמצע ההזמנה, זה יחזיר אתכם להתחלה</span>
-      <button type="button" class="banner-close" (click)="dismissBanner()" aria-label="סגור">✕</button>
+      <button type="button" class="banner-close" (click)="dismissBanner()" aria-label="סגירת הודעת אזהרה">✕</button>
     </div>
   }
 
@@ -15,129 +15,162 @@
     }
   </header>
 
-  @if (loadFailed) {
-    <div class="card message-card warning">
-      <h2>משהו השתבש</h2>
-      <p>לא הצלחנו לטעון את פרטי האירוע. בדקו את החיבור לאינטרנט ונסו לרענן.</p>
-      @if (!diagnosticsSent) {
-        <button type="button" class="btn-secondary" (click)="reportLoadIssue()">הדף לא נטען? לחצו כאן ואנחנו נטפל בזה</button>
-      } @else {
-        <p class="diag-sent">תודה, קיבלנו את הדיווח 🙏</p>
-      }
-    </div>
-  } @else if (!event) {
-    <div class="card message-card">
-      <h2>רק רגע, טוענים עבורכם...</h2>
-      @if (showFallback) {
+  <main aria-live="polite" [attr.aria-atomic]="false">
+    @if (loadFailed) {
+      <div class="card message-card warning">
+        <h2>משהו השתבש</h2>
+        <p>לא הצלחנו לטעון את פרטי האירוע. בדקו את החיבור לאינטרנט ונסו לרענן.</p>
         @if (!diagnosticsSent) {
           <button type="button" class="btn-secondary" (click)="reportLoadIssue()">הדף לא נטען? לחצו כאן ואנחנו נטפל בזה</button>
         } @else {
-          <p class="diag-sent">תודה, קיבלנו את הדיווח 🙏</p>
+          <p class="diag-sent" role="status">תודה, קיבלנו את הדיווח 🙏</p>
         }
-      }
-    </div>
-  } @else if (cancelled) {
-    <div class="card message-card">
-      <h2>איזה באסה שביטלת 😕</h2>
-      <p>רוצה להתחיל הזמנה חדשה?</p>
-      <button type="button" class="btn-primary" (click)="startNewOrder()">כן, בוא נתחיל הזמנה חדשה</button>
-    </div>
-  } @else if (event.isEnded) {
-    <div class="card message-card">
-      <h2>האירוע הסתיים</h2>
-      <p>תודה שהשתתפתם! ❤️</p>
-    </div>
-  } @else if (event.ordersPaused) {
-    <div class="card message-card warning">
-      <h2>יש עומס זמני במערכת ❤️</h2>
-      <p>נסו שוב בעוד מספר דקות</p>
-    </div>
-  } @else if (!event.ordersOpen) {
-    <div class="card message-card warning">
-      <h2>קבלת הזמנות סגורה כרגע</h2>
-    </div>
-  } @else if (submitted && order) {
-    <div class="card queue-card">
-      <h2>הזמנתך התקבלה ❤️</h2>
-      <p class="order-num">הזמנה #{{ order.orderNumber }}</p>
-
-      <div class="status-badge" [class]="'status-' + order.status">
-        {{ statusLabels[order.status] }}
       </div>
-      <p class="status-message">{{ statusMessage }}</p>
-
-      @if (order.status === OrderStatus.New || order.status === OrderStatus.InProgress) {
-        @if (order.positionInQueue) {
-          <p class="queue-info">לפניך {{ order.positionInQueue }} הזמנות</p>
-          <p class="queue-info">זמן משוער: {{ order.estimatedWaitMinutes }} דקות</p>
-        }
-      }
-      @if (order.status === OrderStatus.New) {
-        <button type="button" class="btn-danger-outline cancel-btn" (click)="cancelOrder()">ביטול הזמנה</button>
-      }
-    </div>
-  } @else {
-    <p class="ready-msg">תוכלו כבר עכשיו לבחור תמונה ולשלוח להדפסה 📸</p>
-    <form class="card order-form" (ngSubmit)="submit()">
-      <label>
-        שם
-        <input [(ngModel)]="form.customerName" name="name" required (blur)="validateName()" />
-      </label>
-      @if (nameError) { <p class="field-error">{{ nameError }}</p> }
-
-      <label>
-        טלפון
-        <input type="tel" [(ngModel)]="form.phone" name="phone" required dir="ltr" (blur)="validatePhone()" />
-      </label>
-      @if (phoneError) { <p class="field-error">{{ phoneError }}</p> }
-
-      <div class="file-label">
-        <span>העלאת תמונה</span>
-        <div class="upload-buttons">
-          <button type="button" class="btn-secondary" (click)="cameraInput.click()">📷 צילום</button>
-          <button type="button" class="btn-secondary" (click)="libraryInput.click()">🖼️ מהגלריה</button>
-        </div>
-        <input #cameraInput type="file" accept="image/jpeg,image/png,image/heic,.heic" capture="environment" (change)="onFileSelected($event)" hidden />
-        <input #libraryInput type="file" accept="image/jpeg,image/png,image/heic,.heic" (change)="onFileSelected($event)" hidden />
-      </div>
-      @if (imagePreview) {
-        <img [src]="imagePreview" class="preview" alt="תצוגה מקדימה" />
-      }
-
-      <label>
-        גודל מגנט
-        <select [(ngModel)]="form.magnetSize" name="size">
-          @for (s of availableSizes; track s.value) {
-            <option [ngValue]="s.value">{{ s.label }}</option>
+    } @else if (!event) {
+      <div class="card message-card">
+        <h2>רק רגע, טוענים עבורכם...</h2>
+        @if (showFallback) {
+          @if (!diagnosticsSent) {
+            <button type="button" class="btn-secondary" (click)="reportLoadIssue()">הדף לא נטען? לחצו כאן ואנחנו נטפל בזה</button>
+          } @else {
+            <p class="diag-sent" role="status">תודה, קיבלנו את הדיווח 🙏</p>
           }
-        </select>
-      </label>
+        }
+      </div>
+    } @else if (cancelled) {
+      <div class="card message-card">
+        <h2>איזה באסה שביטלת 😕</h2>
+        <p>רוצה להתחיל הזמנה חדשה?</p>
+        <button type="button" class="btn-primary" (click)="startNewOrder()">כן, בוא נתחיל הזמנה חדשה</button>
+      </div>
+    } @else if (event.isEnded) {
+      <div class="card message-card">
+        <h2>האירוע הסתיים</h2>
+        <p>תודה שהשתתפתם! ❤️</p>
+      </div>
+    } @else if (event.ordersPaused) {
+      <div class="card message-card warning">
+        <h2>יש עומס זמני במערכת ❤️</h2>
+        <p>נסו שוב בעוד מספר דקות</p>
+      </div>
+    } @else if (!event.ordersOpen) {
+      <div class="card message-card warning">
+        <h2>קבלת הזמנות סגורה כרגע</h2>
+      </div>
+    } @else if (submitted && order) {
+      <div class="card queue-card">
+        <h2>הזמנתך התקבלה ❤️</h2>
+        <p class="order-num">הזמנה #{{ order.orderNumber }}</p>
 
-      <label>
-        כמות
-        <input type="number" [min]="1" [max]="event.maxCopies" [(ngModel)]="form.quantity" name="qty" (ngModelChange)="validateQuantity()" />
-      </label>
-      <p class="hint">ניתן לבחור עד {{ event.maxCopies }} מגנטים</p>
-      @if (quantityError) { <p class="field-error">{{ quantityError }}</p> }
+        <div aria-live="polite">
+          <div class="status-badge" [class]="'status-' + order.status">
+            {{ statusLabels[order.status] }}
+          </div>
+          <p class="status-message">{{ statusMessage }}</p>
 
-      <label class="privacy">
-        <input type="checkbox" [(ngModel)]="form.privacyAccepted" name="privacy" />
-        <span>קראתי ואישרתי את מדיניות הפרטיות והתקנון</span>
-      </label>
-      <p class="privacy-note">התמונה נמחקת אוטומטית לאחר ההדפסה ואינה נשמרת במערכת</p>
+          @if (order.status === OrderStatus.New || order.status === OrderStatus.InProgress) {
+            @if (order.positionInQueue) {
+              <p class="queue-info">לפניך {{ order.positionInQueue }} הזמנות</p>
+              <p class="queue-info">זמן משוער: {{ order.estimatedWaitMinutes }} דקות</p>
+            }
+          }
+        </div>
+        @if (order.status === OrderStatus.New) {
+          <button type="button" class="btn-danger-outline cancel-btn" (click)="cancelOrder()">ביטול הזמנה</button>
+        }
+      </div>
+    } @else {
+      <p class="ready-msg">תוכלו כבר עכשיו לבחור תמונה ולשלוח להדפסה 📸</p>
+      <form class="card order-form" (ngSubmit)="submit()">
+        <label for="customerName">
+          שם
+          <input id="customerName" [(ngModel)]="form.customerName" name="name" required
+            [attr.aria-describedby]="nameError ? 'name-error' : null"
+            [attr.aria-invalid]="!!nameError"
+            (blur)="validateName()" />
+        </label>
+        @if (nameError) { <p id="name-error" class="field-error" role="alert">{{ nameError }}</p> }
 
-      @if (error) { <p class="error">{{ error }}</p> }
+        <label for="phone">
+          טלפון
+          <input id="phone" type="tel" [(ngModel)]="form.phone" name="phone" required dir="ltr"
+            [attr.aria-describedby]="phoneError ? 'phone-error' : null"
+            [attr.aria-invalid]="!!phoneError"
+            (blur)="validatePhone()" />
+        </label>
+        @if (phoneError) { <p id="phone-error" class="field-error" role="alert">{{ phoneError }}</p> }
 
-      <button type="submit" class="btn-primary" [disabled]="loading || !!quantityError">
-        {{ loading ? 'שולח...' : 'שלח הזמנה ❤️' }}
-      </button>
-    </form>
-  }
+        <div class="file-label">
+          <span id="upload-label">העלאת תמונה</span>
+          <div class="upload-buttons">
+            <button type="button" class="btn-secondary" (click)="cameraInput.click()" aria-describedby="upload-label">📷 צילום</button>
+            <button type="button" class="btn-secondary" (click)="libraryInput.click()" aria-describedby="upload-label">🖼️ מהגלריה</button>
+          </div>
+          <input #cameraInput type="file" accept="image/jpeg,image/png,image/heic,.heic" capture="environment" (change)="onFileSelected($event)" hidden aria-hidden="true" tabindex="-1" />
+          <input #libraryInput type="file" accept="image/jpeg,image/png,image/heic,.heic" (change)="onFileSelected($event)" hidden aria-hidden="true" tabindex="-1" />
+        </div>
+        @if (imagePreview) {
+          <img [src]="imagePreview" class="preview" alt="תצוגה מקדימה של התמונה שהעלית" />
+        }
+
+        <label for="magnetSize">
+          גודל מגנט
+          <select id="magnetSize" [(ngModel)]="form.magnetSize" name="size">
+            @for (s of availableSizes; track s.value) {
+              <option [ngValue]="s.value">{{ s.label }}</option>
+            }
+          </select>
+        </label>
+
+        <label for="quantity">
+          כמות
+          <input id="quantity" type="number" [min]="1" [max]="event.maxCopies" [(ngModel)]="form.quantity" name="qty"
+            aria-describedby="qty-hint"
+            [attr.aria-invalid]="!!quantityError"
+            (ngModelChange)="validateQuantity()" />
+        </label>
+        <p id="qty-hint" class="hint">ניתן לבחור עד {{ event.maxCopies }} מגנטים</p>
+        @if (quantityError) { <p class="field-error" role="alert">{{ quantityError }}</p> }
+
+        <label class="privacy">
+          <input type="checkbox" [(ngModel)]="form.privacyAccepted" name="privacy" />
+          <span>
+            בלחיצה על "שלח הזמנה" אני מאשר/ת שקראתי ומסכימ/ה ל<button type="button" class="link-btn" (click)="openLegalDoc('privacy')">מדיניות הפרטיות</button>
+            ול<button type="button" class="link-btn" (click)="openLegalDoc('terms')">תקנון השימוש</button>
+          </span>
+        </label>
+        <p class="privacy-note">התמונה נמחקת אוטומטית לאחר ההדפסה ואינה נשמרת במערכת</p>
+
+        @if (error) { <p class="error" role="alert">{{ error }}</p> }
+
+        <button type="submit" class="btn-primary" [disabled]="loading || !!quantityError">
+          {{ loading ? 'שולח...' : 'שלח הזמנה ❤️' }}
+        </button>
+      </form>
+    }
+  </main>
 
   <footer class="contact-footer">
     <p>אהבתם את השירות? 😍</p>
     <a class="whatsapp-link" [href]="whatsappContactUrl" target="_blank" rel="noopener noreferrer">
       💬 דברו איתנו בוואטסאפ לסגירת אירוע
     </a>
+    <nav class="legal-links" aria-label="קישורים משפטיים">
+      <button type="button" class="link-btn" (click)="openLegalDoc('privacy')">מדיניות פרטיות</button>
+      <span aria-hidden="true">·</span>
+      <button type="button" class="link-btn" (click)="openLegalDoc('terms')">תקנון שימוש</button>
+      <span aria-hidden="true">·</span>
+      <a routerLink="/accessibility">הצהרת נגישות</a>
+    </nav>
   </footer>
 </div>
+
+<app-modal [open]="legalDocOpen === 'privacy'" label="מדיניות הפרטיות" (closed)="closeLegalDoc()">
+  <h2 class="visually-hidden">מדיניות הפרטיות</h2>
+  <div [innerHTML]="privacyPolicyHtml"></div>
+</app-modal>
+
+<app-modal [open]="legalDocOpen === 'terms'" label="תקנון שימוש" (closed)="closeLegalDoc()">
+  <h2 class="visually-hidden">תקנון שימוש</h2>
+  <div [innerHTML]="termsOfUseHtml"></div>
+</app-modal>

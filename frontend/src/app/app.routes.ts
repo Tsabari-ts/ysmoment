@@ -5,6 +5,9 @@ export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', loadComponent: () => import('./pages/login/login.component').then(m => m.LoginComponent) },
   { path: 'e/:slug', loadComponent: () => import('./pages/guest-order/guest-order.component').then(m => m.GuestOrderComponent) },
+  { path: 'privacy-policy', loadComponent: () => import('./pages/privacy-policy/privacy-policy.component').then(m => m.PrivacyPolicyComponent) },
+  { path: 'terms-of-use', loadComponent: () => import('./pages/terms-of-use/terms-of-use.component').then(m => m.TermsOfUseComponent) },
+  { path: 'accessibility', loadComponent: () => import('./pages/accessibility-statement/accessibility-statement.component').then(m => m.AccessibilityStatementComponent) },
   {
     path: 'admin/events/new',
     canActivate: [authGuard],

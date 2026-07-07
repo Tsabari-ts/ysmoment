@@ -81,7 +81,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.router.navigate(['/admin/events', this.eventId, 'summary']);
       }
     });
-    this.api.getOrders(this.eventId).subscribe((orders) => {
+    this.api.getOrders(this.eventId, true).subscribe((orders) => {
       this.orders = orders;
       if (!this.selectedOrder && orders.length) this.selectOrder(orders[0]);
       this.loading = false;
@@ -165,7 +165,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   search(): void {
     if (!this.searchQuery.trim()) {
-      this.api.getOrders(this.eventId).subscribe((orders) => (this.orders = orders));
+      this.api.getOrders(this.eventId, true).subscribe((orders) => (this.orders = orders));
       return;
     }
     this.api.searchOrders(this.eventId, this.searchQuery).subscribe((orders) => (this.orders = orders));
