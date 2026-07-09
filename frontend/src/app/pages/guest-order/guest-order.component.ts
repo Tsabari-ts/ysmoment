@@ -15,10 +15,7 @@ import {
 } from '../../core/models';
 import { ACCESSIBILITY_STATEMENT_HTML, PRIVACY_POLICY_HTML, TERMS_OF_USE_HTML } from '../../core/legal-content';
 import { ModalComponent } from '../../shared/modal/modal.component';
-
-const WHATSAPP_CONTACT_URL =
-  'https://api.whatsapp.com/send?phone=972524225365&text=' +
-  encodeURIComponent('היי, אשמח לשמוע פרטים נוספים על שירות הברקוד ולסגור אירוע');
+import { WHATSAPP_CONTACT_URL } from '../../core/business-info';
 
 function defaultForm() {
   return {
