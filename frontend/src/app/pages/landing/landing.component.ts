@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import {
@@ -20,8 +20,7 @@ interface WhyCard {
 }
 
 interface Step {
-  num: number;
-  title: string;
+  num: string;
   text: string;
 }
 
@@ -31,6 +30,10 @@ interface Testimonial {
   quote: string;
 }
 
+interface GalleryTile {
+  rotate: number;
+}
+
 @Component({
   selector: 'app-landing',
   standalone: true,
@@ -38,7 +41,7 @@ interface Testimonial {
   templateUrl: './landing.component.html',
   styleUrl: './landing.component.scss'
 })
-export class LandingComponent {
+export class LandingComponent implements AfterViewInit, OnDestroy {
   whatsappUrl = WHATSAPP_CONTACT_URL;
   phoneDisplay = BUSINESS_PHONE_DISPLAY;
   phoneTel = BUSINESS_PHONE_TEL;
@@ -70,16 +73,13 @@ export class LandingComponent {
   ];
 
   steps: Step[] = [
-    { num: 1, title: 'QR על השולחן', text: 'ברקוד אישי בכל שולחן' },
-    { num: 2, title: 'האורח סורק', text: 'מצלמת הטלפון מספיקה' },
-    { num: 3, title: 'מעלה תמונה', text: 'מהגלריה או סלפי חדש' },
-    { num: 4, title: 'הדפסה', text: 'מדפסת מקצועית בעמדה' },
-    { num: 5, title: 'הודעה לטלפון', text: 'התראה אוטומטית ישירות לנייד' },
-    { num: 6, title: 'איסוף מגנט', text: 'מזכרת לכל החיים' }
+    { num: '01', text: 'סרקו את הברקוד שעל השולחן' },
+    { num: '02', text: 'צלמו תמונה או העלו קיימת מהגלריה' },
+    { num: '03', text: 'אספו את המגנט מעמדה ייעודית עם קבלת הודעת איסוף' }
   ];
 
   // TODO: replace with real event photos
-  galleryPlaceholders = [1, 2, 3, 4, 5, 6];
+  galleryTiles: GalleryTile[] = [-6, 3, -3, 8, -4, 5, -7, 4].map((rotate) => ({ rotate }));
 
   // TODO: placeholder testimonials — replace with real client quotes
   testimonials: Testimonial[] = [
@@ -87,6 +87,33 @@ export class LandingComponent {
     { name: 'רועי', eventType: 'בר מצווה', quote: 'הכל היה חלק ומקצועי, ילדים ומבוגרים נהנו באותה מידה. ממליץ בחום.' },
     { name: 'שירה', eventType: 'אירוע פרטי', quote: 'מזכרת אמיתית מהערב, לא סתם תמונה במצלמה. תוספת שעשתה את ההבדל.' }
   ];
+
+  private observer?: IntersectionObserver;
+
+  constructor(private host: ElementRef<HTMLElement>) {}
+
+  ngAfterViewInit(): void {
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduceMotion) return;
+
+    const targets = this.host.nativeElement.querySelectorAll('.reveal');
+    this.observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('revealed');
+            this.observer?.unobserve(entry.target);
+          }
+        }
+      },
+      { threshold: 0.15 }
+    );
+    targets.forEach((el) => this.observer!.observe(el));
+  }
+
+  ngOnDestroy(): void {
+    this.observer?.disconnect();
+  }
 
   scrollTo(id: string): void {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
