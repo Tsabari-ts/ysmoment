@@ -448,12 +448,18 @@
   span { color: var(--l-muted); font-weight: 400; }
 }
 
+.review-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
 .review-nav {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 44px;
-  height: 44px;
+  flex: none;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background: var(--l-grad);
   border: none;
@@ -461,19 +467,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 800;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
 }
-
-.review-nav-prev { inset-inline-start: -4px; }
-.review-nav-next { inset-inline-end: -4px; }
 
 .review-dots {
   display: flex;
   gap: 8px;
   justify-content: center;
-  margin-top: 1.5rem;
 }
 
 .review-dot {

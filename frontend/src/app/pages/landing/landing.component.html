@@ -91,19 +91,21 @@
             }
           </div>
         </div>
-        <button type="button" class="review-nav review-nav-prev" (click)="prevReview()" aria-label="ביקורת קודמת">‹</button>
-        <button type="button" class="review-nav review-nav-next" (click)="nextReview()" aria-label="ביקורת הבאה">›</button>
       </div>
-      <div class="review-dots">
-        @for (review of reviews; track review.name + review.eventType; let i = $index) {
-          <button
-            type="button"
-            class="review-dot"
-            [class.active]="i === activeReviewIndex"
-            (click)="goToReview(i)"
-            [attr.aria-label]="'מעבר לביקורת ' + (i + 1)"
-          ></button>
-        }
+      <div class="review-controls">
+        <button type="button" class="review-nav review-nav-prev" (click)="prevReview()" aria-label="ביקורת קודמת">‹</button>
+        <div class="review-dots">
+          @for (review of reviews; track review.name + review.eventType; let i = $index) {
+            <button
+              type="button"
+              class="review-dot"
+              [class.active]="i === activeReviewIndex"
+              (click)="goToReview(i)"
+              [attr.aria-label]="'מעבר לביקורת ' + (i + 1)"
+            ></button>
+          }
+        </div>
+        <button type="button" class="review-nav review-nav-next" (click)="nextReview()" aria-label="ביקורת הבאה">›</button>
       </div>
     </section>
 
