@@ -1,90 +1,48 @@
 <div class="landing">
-  <div class="grain" aria-hidden="true"></div>
+  <div class="glow glow-teal" aria-hidden="true"></div>
+  <div class="glow glow-gold" aria-hidden="true"></div>
 
   <header class="nav">
-    <div class="nav-brand">הפקות יגל שהם</div>
-    <a routerLink="/login" class="admin-link">כניסת מנהל</a>
+    <div class="nav-brand">
+      <div class="brand-mark">
+        <img [src]="logoSrc" alt="הפקות יגל שהם — לוגו" />
+      </div>
+      <div class="brand-text">
+        <div class="brand-name">הפקות יגל שהם</div>
+        <div class="brand-tag">שירות סלפי-מגנט לאירועים</div>
+      </div>
+    </div>
+    <div class="nav-actions">      
+      <a routerLink="/login" class="login-link" aria-label="התחברות">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+          <circle cx="12" cy="8" r="3.5"/>
+          <path d="M4.5 20c1.2-3.8 4.3-6 7.5-6s6.3 2.2 7.5 6"/>
+        </svg>
+      </a>
+    </div>
   </header>
 
   <main>
-    <!-- TODO: replace hero photo-stack gradients with real event photos -->
     <section class="hero">
-      <div class="hero-bg" aria-hidden="true">
-        <span class="glow glow-gold"></span>
-        <span class="glow glow-indigo"></span>
+      <span class="hero-badge">כל אורח יוצא עם מזכרת</span>
+      <h1>
+        האורחים יוצאים עם מגנט.
+        <span class="gradient-text">אתם עם חיוך.</span>
+      </h1>
+      <p class="hero-subtitle">
+        בלי עמדת צילום ובלי תורים. כל אורח סורק ברקוד מהטלפון שלו, בוחר בדיוק את התמונה שבא לו,
+        ומקבל מגנט ממותג לאיסוף — תוך רגעים.
+      </p>
+      <div class="hero-actions">
+        <a class="btn-gold" [href]="whatsappUrl" target="_blank" rel="noopener noreferrer">
+          דברו איתי בוואטסאפ ←
+        </a>
+        <button type="button" class="btn-outline" (click)="scrollTo('how-it-works')">
+          איך זה עובד ↓
+        </button>
       </div>
-      <div class="hero-inner">
-        <div class="hero-content">
-          <p class="overline hero-anim" style="--d: 0ms">שירות ברקוד לאירועים פרימיום</p>
-          <h1 class="hero-anim" style="--d: 120ms">
-            <span class="gold">כל אורח יוצא</span>
-            <span class="ivory">עם מזכרת מהלב</span>
-          </h1>
-          <p class="hero-subtitle hero-anim" style="--d: 240ms">
-            סורקים, מעלים תמונה, ומקבלים מגנט מודפס ביד תוך דקות. חוויה שכל אורח לוקח הביתה —
-            ומדברים עליה עוד הרבה זמן.
-          </p>
-          <div class="hero-actions hero-anim" style="--d: 360ms">
-            <a class="btn-gold" [href]="whatsappUrl" target="_blank" rel="noopener noreferrer">
-              בואו נסגור את האירוע שלכם
-            </a>
-            <button type="button" class="btn-outline-ivory" (click)="scrollTo('how-it-works')">
-              איך זה עובד ↓
-            </button>
-          </div>
-        </div>
-
-        <div class="hero-photos" aria-hidden="true">
-          <div class="photo-card card-1">
-            <div class="photo-inner grad-gold"></div>
-            <div class="photo-caption">חתונה · שהם</div>
-          </div>
-          <div class="photo-card card-2">
-            <div class="photo-inner grad-indigo"></div>
-            <div class="photo-caption">אירוע 06.2026</div>
-          </div>
-          <div class="photo-card card-3">
-            <div class="photo-inner grad-bronze"></div>
-            <div class="photo-caption">מזכרת מהלב</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="why-us reveal">
-      <h2>לא עוד צילום אירועים רגיל</h2>
-      <div class="why-grid">
-        @for (card of whyCards; track card.title) {
-          <div class="why-card">
-            <div class="why-icon">
-              @switch (card.icon) {
-                @case ('camera') {
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
-                    <rect x="3" y="7" width="18" height="13" rx="1.5"/>
-                    <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                    <circle cx="12" cy="13.5" r="3.2"/>
-                  </svg>
-                }
-                @case ('scan') {
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
-                    <path d="M4 8V5a1 1 0 0 1 1-1h3"/>
-                    <path d="M20 8V5a1 1 0 0 0-1-1h-3"/>
-                    <path d="M4 16v3a1 1 0 0 0 1 1h3"/>
-                    <path d="M20 16v3a1 1 0 0 1-1 1h-3"/>
-                    <rect x="9" y="9" width="6" height="6" rx="1"/>
-                  </svg>
-                }
-                @case ('heart') {
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
-                    <path d="M12 20.5s-7-4.4-9.3-8.6C1.2 9 2.7 5.7 6 5.7c1.8 0 3.3 1.1 3.9 2.7.6-1.6 2.1-2.7 3.9-2.7 3.3 0 4.8 3.3 3.3 6.2-2.3 4.2-9.1 8.6-9.1 8.6z"/>
-                  </svg>
-                }
-              }
-            </div>
-            <h3>{{ card.title }}</h3>
-            <p>{{ card.text }}</p>
-          </div>
-        }
+      <div class="hero-meta">
+        <span>כל האורחים מרוצים</span><span>· הדפסה מיידית ·</span><span>מיתוג לפי האירוע</span>
       </div>
     </section>
 
@@ -93,8 +51,9 @@
       <h2>שלושה שלבים. אפס מאמץ.</h2>
       <div class="steps-grid">
         @for (step of steps; track step.num) {
-          <div class="step">
+          <div class="step-card">
             <div class="step-num">{{ step.num }}</div>
+            <h3>{{ step.title }}</h3>
             <p>{{ step.text }}</p>
           </div>
         }
@@ -102,91 +61,133 @@
     </section>
 
     <section class="gallery reveal" id="gallery">
-      <h2>רגעים שכבר קרו</h2>
-      <!-- TODO: replace with real event photos (4:5, ~1000x1250px) -->
-      <div class="filmstrip">
-        @for (tile of galleryTiles; track $index) {
-          <div class="film-tile" [style.--rot]="tile.rotate" aria-hidden="true">
-            <div class="film-inner" [class]="'grad-' + ($index % 3 === 0 ? 'gold' : $index % 3 === 1 ? 'indigo' : 'bronze')">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.1" aria-hidden="true">
-                <rect x="3" y="7" width="18" height="13" rx="1.5"/>
-                <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                <circle cx="12" cy="13.5" r="3.2"/>
-              </svg>
-            </div>
-            <div class="film-frame"></div>
+      <div class="section-heading">
+        <h2>המגנטים שהאורחים בחרו</h2>
+        <p>רגעים אמיתיים מאירועים אמיתיים — כל תמונה נבחרה על ידי האורחים עצמם</p>
+      </div>
+      <div class="gallery-grid">
+        @for (photo of galleryPhotos; track photo.src) {
+          <div class="gallery-tile">
+            <img [src]="photo.src" [alt]="photo.alt" loading="lazy" />
           </div>
         }
       </div>
     </section>
 
-    <section class="testimonials reveal">
-      <h2>האורחים כבר אמרו</h2>
-      <div class="testimonials-grid">
-        @for (t of testimonials; track t.name) {
-          <div class="testimonial-card">
-            <div class="avatar" aria-hidden="true">{{ t.name.charAt(0) }}</div>
-            <p class="quote">"{{ t.quote }}"</p>
-            <p class="attribution">{{ t.name }} · {{ t.eventType }}</p>
+    <section class="reviews reveal">
+      <div class="section-heading">
+        <h2>מה אומרים עליי</h2>
+        <p>לקוחות מספרים על שירות הצילום ועל שירות הברקודים</p>
+      </div>
+      <div class="reviews-carousel">
+        <div class="reviews-mask" dir="ltr">
+          <div class="reviews-track" [style.transform]="reviewTrackTransform">
+            @for (review of reviews; track review.name + review.eventType) {
+              <div class="review-card" dir="rtl">
+                <div class="review-stars" aria-hidden="true">★★★★★</div>
+                <p class="review-quote">{{ review.quote }}</p>
+                <div class="review-attribution">{{ review.name }} · <span>{{ review.eventType }}</span></div>
+              </div>
+            }
+          </div>
+        </div>
+        <button type="button" class="review-nav review-nav-prev" (click)="prevReview()" aria-label="ביקורת קודמת">‹</button>
+        <button type="button" class="review-nav review-nav-next" (click)="nextReview()" aria-label="ביקורת הבאה">›</button>
+      </div>
+      <div class="review-dots">
+        @for (review of reviews; track review.name + review.eventType; let i = $index) {
+          <button
+            type="button"
+            class="review-dot"
+            [class.active]="i === activeReviewIndex"
+            (click)="goToReview(i)"
+            [attr.aria-label]="'מעבר לביקורת ' + (i + 1)"
+          ></button>
+        }
+      </div>
+    </section>
+
+    <section class="faq reveal">
+      <h2>שאלות נפוצות</h2>
+      <div class="faq-list">
+        @for (faq of faqs; track faq.question; let i = $index) {
+          <div class="faq-item">
+            <button
+              type="button"
+              class="faq-question"
+              (click)="toggleFaq(i)"
+              [attr.aria-expanded]="openFaqIndex === i"
+            >
+              <span>{{ faq.question }}</span>
+              <span class="faq-sign" aria-hidden="true">{{ openFaqIndex === i ? '−' : '+' }}</span>
+            </button>
+            @if (openFaqIndex === i) {
+              <div class="faq-answer">{{ faq.answer }}</div>
+            }
           </div>
         }
+      </div>
+    </section>
+
+    <section class="about reveal">
+      <div class="about-photo">
+        <img [src]="aboutPhotoSrc" alt="יגל צברי — צלם ומפיק אירועים" loading="lazy" />
+      </div>
+      <div class="about-text">
+        <p class="overline">קצת עליי</p>
+        <h2>נעים מאוד, יגל צברי</h2>
+        <p>
+          צלם ומפיק אירועים שחי את הרגעים הקטנים. הבאתי את שירות הסלפי-מגנט כדי שכל אורח ייקח הביתה
+          חתיכה מהערב — סורק, בוחר את התמונה שאהב, ומדפיס בעצמו. אני דואג שהכול יעבוד חלק, יראה
+          יוקרתי, ויתאים בול לאווירה שלכם.
+        </p>
       </div>
     </section>
 
     <section class="cta-banner reveal">
-      <div class="cta-bg" aria-hidden="true"></div>
-      <div class="cta-content">
-        <h2>התאריך שלכם מתקרב?</h2>
-        <p>המקומות הפנויים שלנו מתמלאים מהר, במיוחד בעונת האירועים. בואו נדבר על התאריך שלכם עוד היום.</p>
-        <a class="btn-gold" [href]="whatsappUrl" target="_blank" rel="noopener noreferrer">
-          לתיאום ובדיקת זמינות
-        </a>
-      </div>
+      <h2>התאריך שלכם מתקרב?</h2>
+      <p>המקומות הפנויים שלנו מתמלאים מהר, במיוחד בעונת האירועים. בואו נדבר על התאריך שלכם עוד היום.</p>
+      <a class="btn-cta" [href]="whatsappUrl" target="_blank" rel="noopener noreferrer">
+        לתיאום ובדיקת זמינות ←
+      </a>
     </section>
 
     <section class="contact reveal" id="contact">
-      <div class="contact-bg" aria-hidden="true"></div>
-      <div class="contact-content">
-        <p class="overline">בואו נדבר</p>
-        <h2>כל דרך נוחה לכם — אנחנו כאן</h2>
-        <div class="contact-actions">
-          <a class="btn-gold" [href]="whatsappUrl" target="_blank" rel="noopener noreferrer">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-              <path d="M20.5 11.5a8.5 8.5 0 1 1-3.7-7"/>
-              <path d="M8.5 10.5c0 3 2.5 5.5 5.5 5.5"/>
-              <path d="M12.5 8.5c1.5 0 2.5 1 2.5 2.5"/>
-              <path d="M3 21l1.3-3.9A8.5 8.5 0 1 1 8.5 21H3z"/>
-            </svg>
-            <span>וואטסאפ</span>
-          </a>
-          <a class="btn-outline-ivory" [href]="phoneTel">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-              <path d="M4 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L14 13l5 2v4a2 2 0 0 1-2 2C9.6 21 3 14.4 3 6a2 2 0 0 1 1-2z"/>
-            </svg>
-            <span>{{ phoneDisplay }}</span>
-          </a>
-        </div>
-
-        <div class="social-row">
-          <a [href]="instagramUrl" target="_blank" rel="noopener noreferrer" class="social-circle" aria-label="אינסטגרם">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
-              <rect x="3" y="3" width="18" height="18" rx="5"/>
-              <circle cx="12" cy="12" r="4"/>
-              <circle cx="17.2" cy="6.8" r="1"/>
-            </svg>
-          </a>
-          <a [href]="facebookUrl" target="_blank" rel="noopener noreferrer" class="social-circle" aria-label="פייסבוק">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
-              <path d="M14 21v-7h2.5l.5-3H14V9c0-.9.3-1.5 1.7-1.5H17V5c-.3 0-1.3-.1-2.4-.1-2.4 0-4 1.5-4 4.2V11H8v3h2.6v7"/>
-            </svg>
-          </a>
-          <a [href]="tiktokUrl" target="_blank" rel="noopener noreferrer" class="social-circle" aria-label="טיקטוק">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
-              <path d="M14 4v10.5a3 3 0 1 1-2.5-3"/>
-              <path d="M14 4c.3 2 1.8 3.5 4 3.8"/>
-            </svg>
-          </a>
-        </div>
+      <h2>בואו נהיה בקשר</h2>
+      <p>אפשר להתקשר ישירות, לשלוח הודעה בוואטסאפ, או פשוט לעקוב אחרי הרגעים היפים ברשתות.</p>
+      <div class="contact-actions">
+        <a class="btn-pill" [href]="phoneTel" [attr.aria-label]="'התקשרו ' + phoneDisplay">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--l-teal)" aria-hidden="true">
+            <path d="M6.6 10.8c1.4 2.8 3.8 5.2 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.4 0 .8-.3 1L6.6 10.8Z"/>
+          </svg>
+          <span>{{ phoneDisplay }}</span>
+        </a>
+        <a class="btn-pill btn-pill-wa" [href]="whatsappUrl" target="_blank" rel="noopener noreferrer" aria-label="שליחת הודעה בוואטסאפ">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="#25D366" aria-hidden="true">
+            <path d="M12 2a10 10 0 0 0-8.6 15l-1.3 4.8 5-1.3A10 10 0 1 0 12 2Zm5.7 14.2c-.2.7-1.4 1.3-2 1.4-.5.1-1.2.1-1.9-.1-.4-.1-1-.3-1.8-.6-3-1.3-5-4.4-5.1-4.6-.2-.2-1.3-1.7-1.3-3.3 0-1.5.8-2.3 1.1-2.6.3-.3.6-.4.8-.4h.6c.2 0 .4 0 .7.5.2.6.8 2 .9 2.1.1.1.1.3 0 .5-.3.6-.6.8-.8 1.1-.2.2-.4.4-.2.7.2.4.9 1.4 1.9 2.3 1.3 1.1 2.3 1.5 2.7 1.6.3.1.5.1.7-.1.2-.2.8-.9 1-1.2.2-.3.4-.2.7-.1.3.1 1.8.9 2.1 1 .3.2.5.2.6.4.1.1.1.6-.1 1.3Z"/>
+          </svg>
+          <span>וואטסאפ</span>
+        </a>
+      </div>
+      <div class="social-row">
+        <a [href]="instagramUrl" target="_blank" rel="noopener noreferrer" class="social-circle" aria-label="אינסטגרם">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
+            <rect x="3" y="3" width="18" height="18" rx="5"/>
+            <circle cx="12" cy="12" r="4"/>
+            <circle cx="17.2" cy="6.8" r="1"/>
+          </svg>
+        </a>
+        <a [href]="facebookUrl" target="_blank" rel="noopener noreferrer" class="social-circle" aria-label="פייסבוק">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
+            <path d="M14 21v-7h2.5l.5-3H14V9c0-.9.3-1.5 1.7-1.5H17V5c-.3 0-1.3-.1-2.4-.1-2.4 0-4 1.5-4 4.2V11H8v3h2.6v7"/>
+          </svg>
+        </a>
+        <a [href]="tiktokUrl" target="_blank" rel="noopener noreferrer" class="social-circle" aria-label="טיקטוק">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
+            <path d="M14 4v10.5a3 3 0 1 1-2.5-3"/>
+            <path d="M14 4c.3 2 1.8 3.5 4 3.8"/>
+          </svg>
+        </a>
       </div>
     </section>
   </main>
@@ -203,6 +204,12 @@
       <a [href]="developerCreditUrl" target="_blank" rel="noopener noreferrer">Tomer - By Your Site</a>
     </p>
   </footer>
+
+  <a class="floating-wa" [href]="whatsappUrl" target="_blank" rel="noopener noreferrer" aria-label="שליחת הודעה בוואטסאפ">
+    <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M12 2a10 10 0 0 0-8.6 15l-1.3 4.8 5-1.3A10 10 0 1 0 12 2Zm5.7 14.2c-.2.7-1.4 1.3-2 1.4-.5.1-1.2.1-1.9-.1-.4-.1-1-.3-1.8-.6-3-1.3-5-4.4-5.1-4.6-.2-.2-1.3-1.7-1.3-3.3 0-1.5.8-2.3 1.1-2.6.3-.3.6-.4.8-.4h.6c.2 0 .4 0 .7.5.2.6.8 2 .9 2.1.1.1.1.3 0 .5-.3.6-.6.8-.8 1.1-.2.2-.4.4-.2.7.2.4.9 1.4 1.9 2.3 1.3 1.1 2.3 1.5 2.7 1.6.3.1.5.1.7-.1.2-.2.8-.9 1-1.2.2-.3.4-.2.7-.1.3.1 1.8.9 2.1 1 .3.2.5.2.6.4.1.1.1.6-.1 1.3Z"/>
+    </svg>
+  </a>
 </div>
 
 <app-modal [open]="legalDocOpen === 'privacy'" label="מדיניות הפרטיות" (closed)="closeLegalDoc()">

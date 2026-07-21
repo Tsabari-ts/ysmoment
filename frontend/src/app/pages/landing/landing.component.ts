@@ -13,26 +13,31 @@ import {
 import { ACCESSIBILITY_STATEMENT_HTML, PRIVACY_POLICY_HTML } from '../../core/legal-content';
 import { ModalComponent } from '../../shared/modal/modal.component';
 
-interface WhyCard {
-  icon: 'camera' | 'scan' | 'heart';
+interface Step {
+  num: string;
   title: string;
   text: string;
 }
 
-interface Step {
-  num: string;
-  text: string;
+interface GalleryPhoto {
+  src: string;
+  alt: string;
 }
 
-interface Testimonial {
+interface Review {
   name: string;
   eventType: string;
   quote: string;
 }
 
-interface GalleryTile {
-  rotate: number;
+interface Faq {
+  question: string;
+  answer: string;
 }
+
+const REVIEW_CARD_WIDTH = 320;
+const REVIEW_CARD_GAP = 16;
+const REVIEW_STEP = REVIEW_CARD_WIDTH + REVIEW_CARD_GAP;
 
 @Component({
   selector: 'app-landing',
@@ -49,44 +54,68 @@ export class LandingComponent implements AfterViewInit, OnDestroy {
   facebookUrl = FACEBOOK_URL;
   tiktokUrl = TIKTOK_URL;
   developerCreditUrl = DEVELOPER_CREDIT_URL;
+  logoSrc = 'assets/logo-ys (1).png';
 
   privacyPolicyHtml = PRIVACY_POLICY_HTML;
   accessibilityStatementHtml = ACCESSIBILITY_STATEMENT_HTML;
   legalDocOpen: 'privacy' | 'accessibility' | null = null;
 
-  whyCards: WhyCard[] = [
+  steps: Step[] = [
     {
-      icon: 'camera',
-      title: 'חוויה, לא רק תמונה',
-      text: 'האורחים לא רק מצטלמים, הם יוצאים עם חפץ ביד. זה מה שהופך אתכם לאירוע שמדברים עליו.'
+      num: '01',
+      title: 'סרקו את הברקוד שעל השולחן',
+      text: 'כל שולחן מקבל ברקוד אישי. סורקים עם מצלמת הטלפון — בלי להוריד שום אפליקציה.'
     },
     {
-      icon: 'scan',
-      title: 'אפס בלאגן טכני',
-      text: 'בלי אפליקציות להורדה, בלי הסברים לאורחים. סורקים, מעלים, וזהו.'
+      num: '02',
+      title: 'בחרו איזו תמונה להדפיס',
+      text: 'מצלמים סלפי טרי או בוחרים תמונה אהובה מהגלריה — כל אורח בוחר בעצמו בדיוק את הרגע שיודפס.'
     },
     {
-      icon: 'heart',
-      title: 'עמדה חיה באירוע',
-      text: 'צוות מקצועי נמצא איתכם לאורך כל האירוע, לא עוזב לרגע.'
+      num: '03',
+      title: 'אספו את המגנט',
+      text: 'המגנט מודפס תוך רגעים, והודעת איסוף נשלחת ברגע שהוא מוכן.'
     }
   ];
 
-  steps: Step[] = [
-    { num: '01', text: 'סרקו את הברקוד שעל השולחן' },
-    { num: '02', text: 'צלמו תמונה או העלו קיימת מהגלריה' },
-    { num: '03', text: 'אספו את המגנט מעמדה ייעודית עם קבלת הודעת איסוף' }
+  galleryPhotos: GalleryPhoto[] = [
+    { src: 'assets/gallery-1.png', alt: 'רגע ריקודים' },
+    { src: 'assets/gallery-2.png', alt: 'זוג צוחק' },
+    { src: 'assets/gallery-3.png', alt: 'חברות' },
+    { src: 'assets/gallery-4.png', alt: 'משפחה' },
+    { src: 'assets/gallery-5.png', alt: 'ילדים' },
+    { src: 'assets/gallery-6.png', alt: 'קלוז-אפ' }
   ];
 
-  // TODO: replace with real event photos
-  galleryTiles: GalleryTile[] = [-6, 3, -3, 8, -4, 5, -7, 4].map((rotate) => ({ rotate }));
+  aboutPhotoSrc = 'assets/hero-1.png';
 
-  // TODO: placeholder testimonials — replace with real client quotes
-  testimonials: Testimonial[] = [
-    { name: 'מאיה ואיתי', eventType: 'חתונה', quote: 'האורחים פשוט השתגעו על זה — כולם יצאו עם מגנט ביד וזה היה הנושא של הערב!' },
-    { name: 'רועי', eventType: 'בר מצווה', quote: 'הכל היה חלק ומקצועי, ילדים ומבוגרים נהנו באותה מידה. ממליץ בחום.' },
-    { name: 'שירה', eventType: 'אירוע פרטי', quote: 'מזכרת אמיתית מהערב, לא סתם תמונה במצלמה. תוספת שעשתה את ההבדל.' }
+  reviews: Review[] = [
+    { name: 'שירן ואורי', eventType: 'חתונה', quote: 'יגל היה הצלם שלנו וגם הביא את שירות הברקודים — האורחים סרקו, בחרו תמונה, ולקחו מגנט הביתה. שילוב מנצח!' },
+    { name: 'משפחת לוי', eventType: 'בר מצווה', quote: 'כל האורחים בלי יוצא מן הכלל יצאו מרוצים עם מגנט ביד. הילדים לא הפסיקו לסרוק ולהדפיס.' },
+    { name: 'טלי כהן', eventType: 'אירוע חברה', quote: 'מיתגנו את המגנטים עם הלוגו של החברה. נראה יוקרתי, וכולם אהבו שהם בוחרים לבד את התמונה.' },
+    { name: 'נועה ורן', eventType: 'חתונה', quote: 'הכי אהבנו שאין תורים ואין עמדה מסורבלת — כל אחד סורק מהטלפון שלו ובוחר בדיוק את התמונה שאהב.' },
+    { name: 'דנה', eventType: 'יום הולדת 40', quote: 'שירות חלק ומהיר. תוך שניות מהצילום כבר היה מגנט מוכן לאיסוף. פשוט כיף.' },
+    { name: 'אבי ומיכל', eventType: 'ברית', quote: 'לקחנו חבילה של צילום מקצועי יחד עם הברקודים. קיבלנו גם אלבום מהמם וגם מזכרת לכל אורח.' },
+    { name: 'רועי', eventType: 'אירוע חברה', quote: 'פשוט, כיפי ובלי כאב ראש. האורחים בחרו תמונות והדפיסו בעצמם — הצלחה מוחלטת לכל הצוות.' },
+    { name: 'ליאת', eventType: 'בת מצווה', quote: 'הבנות היו בהיסטריה. כל אחת בחרה סלפי אחר והדפיסה כמה מגנטים שרצתה.' },
+    { name: 'משפחת פרץ', eventType: 'חינה', quote: 'הצבעוניות של האירוע קיבלה מגנטים תואמים. שירות אדיב ומקצועי מהרגע הראשון ועד הסוף.' },
+    { name: 'יוסי ואורלי', eventType: 'חתונה', quote: 'בסוף הערב לכל אורח היה מגנט על המקרר. בדיוק המזכרת שרצינו שתישאר מהיום הכי חשוב שלנו.' }
   ];
+  activeReviewIndex = 9;
+
+  faqs: Faq[] = [
+    { question: 'כמה זמן לוקח עד שהמגנט מוכן?', answer: 'משך ההמתנה משתנה בהתאם לעומס ההזמנות. ההזמנה שלך נכנסת לתור ההדפסה, וכשמגיע תורה המגנט מודפס. בסיום ההדפסה תקבל/י הודעה שהמגנט מוכן לאיסוף.' },
+    { question: 'צריך להתקין אפליקציה?', answer: 'ממש לא. סורקים את הברקוד עם מצלמת הטלפון והכול עובד ישירות בדפדפן.' },
+    { question: 'איך האורח בוחר את התמונה?', answer: 'אחרי הסריקה נפתח לאורח מסך שבו הוא מצלם סלפי או בוחר תמונה מהגלריה.' },
+    { question: 'כמה מגנטים אפשר להפיק בערב?', answer: 'ללא הגבלה. השירות עובד ברצף לאורך כל האירוע וכל אורח יכול להפיק כמה שירצה.' },
+    { question: 'אפשר להוסיף מיתוג אישי לאירוע?', answer: 'בטח. אפשר לעצב את המגנט עם שם, תאריך, לוגו או עיצוב שתואם לאווירת האירוע שלכם.' },
+    { question: 'מתאים לכל סוג אירוע?', answer: 'בהחלט — חתונות, בר/בת מצווה, ימי הולדת, אירועי חברה וברים. מתאימים את המיתוג לאירוע שלכם.' },
+    { question: 'מה צריך להכין מראש מבחינתי?', answer: 'כמעט כלום — רק חשמל ומעט מקום לנקודת האיסוף. את כל השאר אני מביא ומקים.' },
+    { question: 'מציעים גם שירותי צילום?', answer: 'כן! אני צלם אירועים, ואפשר לשלב חבילת צילום מקצועי יחד עם שירות הברקודים והמגנטים.' },
+    { question: 'באילו אזורים אתם פועלים?', answer: 'בכל הארץ. ספרו לי איפה ומתי האירוע ונתאם את כל הפרטים.' },
+    { question: 'איך מזמינים ומה המחיר?', answer: 'שולחים לי הודעה עם התאריך וסוג האירוע, ואני חוזר אליכם עם הצעה מותאמת ובדיקת זמינות.' }
+  ];
+  openFaqIndex: number | null = null;
 
   private observer?: IntersectionObserver;
 
@@ -125,5 +154,25 @@ export class LandingComponent implements AfterViewInit, OnDestroy {
 
   closeLegalDoc(): void {
     this.legalDocOpen = null;
+  }
+
+  get reviewTrackTransform(): string {
+    return `translateX(${-this.activeReviewIndex * REVIEW_STEP}px)`;
+  }
+
+  nextReview(): void {
+    this.activeReviewIndex = (this.activeReviewIndex + 1) % this.reviews.length;
+  }
+
+  prevReview(): void {
+    this.activeReviewIndex = (this.activeReviewIndex - 1 + this.reviews.length) % this.reviews.length;
+  }
+
+  goToReview(i: number): void {
+    this.activeReviewIndex = i;
+  }
+
+  toggleFaq(i: number): void {
+    this.openFaqIndex = this.openFaqIndex === i ? null : i;
   }
 }
