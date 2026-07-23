@@ -79,15 +79,15 @@ export class LandingComponent implements AfterViewInit, OnDestroy {
   ];
 
   galleryPhotos: GalleryPhoto[] = [
-    { src: 'assets/gallery-1.png', alt: 'רגע ריקודים' },
-    { src: 'assets/gallery-2.png', alt: 'זוג צוחק' },
-    { src: 'assets/gallery-3.png', alt: 'חברות' },
-    { src: 'assets/gallery-4.png', alt: 'משפחה' },
-    { src: 'assets/gallery-5.png', alt: 'ילדים' },
-    { src: 'assets/gallery-6.png', alt: 'קלוז-אפ' }
+    { src: 'assets/gallery-1.webp', alt: 'רגע ריקודים' },
+    { src: 'assets/gallery-2.webp', alt: 'זוג צוחק' },
+    { src: 'assets/gallery-3.webp', alt: 'חברות' },
+    { src: 'assets/gallery-4.webp', alt: 'משפחה' },
+    { src: 'assets/gallery-5.webp', alt: 'ילדים' },
+    { src: 'assets/gallery-6.webp', alt: 'קלוז-אפ' }
   ];
 
-  aboutPhotoSrc = 'assets/hero-1.png';
+  aboutPhotoSrc = 'assets/me.webp';
 
   reviews: Review[] = [
     { name: 'שירן ואורי', eventType: 'חתונה', quote: 'יגל היה הצלם שלנו וגם הביא את שירות הברקודים — האורחים סרקו, בחרו תמונה, ולקחו מגנט הביתה. שילוב מנצח!' },
