@@ -11,7 +11,7 @@
       <div class="header-actions">
         @if (event.qrCodeBase64) {
           <div class="qr-wrap">
-            <img class="qr-small" [src]="'data:image/png;base64,' + event.qrCodeBase64" alt="QR" />
+            <img class="qr-small" [src]="'data:image/png;base64,' + event.qrCodeBase64" [attr.alt]="'קוד QR לאירוע ' + event.name" />
             <button type="button" class="btn-action" (click)="downloadQr()">⬇ הורדת ברקוד</button>
           </div>
         }
@@ -33,8 +33,12 @@
     <div class="dash-layout">
       <aside class="queue-panel card">
         <div class="search-bar">
-          <input [(ngModel)]="searchQuery" placeholder="חיפוש: שם / טלפון / מספר הזמנה" (keyup.enter)="search()" />
-          <button (click)="search()">חפש</button>
+          <input
+            [(ngModel)]="searchQuery"
+            placeholder="חיפוש: שם / טלפון / מספר הזמנה"
+            aria-label="חיפוש הזמנות לפי שם, טלפון או מספר הזמנה"
+            (keyup.enter)="search()" />
+          <button type="button" (click)="search()">חפש</button>
         </div>
 
         <h2>תור הזמנות ({{ pendingOrders.length }})</h2>
@@ -42,10 +46,16 @@
           @for (order of orders; track order.id) {
             <div
               class="order-card"
+              role="button"
+              tabindex="0"
               [class.selected]="selectedOrder?.id === order.id"
               [class.status-ready]="order.status === OrderStatus.Ready"
               [class.status-cancelled]="order.status === OrderStatus.Cancelled"
-              (click)="selectOrder(order)">
+              [attr.aria-pressed]="selectedOrder?.id === order.id"
+              [attr.aria-label]="'הזמנה מספר ' + order.orderNumber + ', ' + order.customerName + ', סטטוס ' + statusLabels[order.status]"
+              (click)="selectOrder(order)"
+              (keydown.enter)="selectOrder(order)"
+              (keydown.space)="$event.preventDefault(); selectOrder(order)">
               <div class="order-card-top">
                 <span class="order-num">#{{ order.orderNumber }}</span>
                 <span class="badge" [class]="'badge-status-' + order.status">{{ statusLabels[order.status] }}</span>
@@ -62,7 +72,7 @@
         </div>
       </aside>
 
-      <main class="preview-panel card">
+      <section class="preview-panel card" aria-label="תצוגת הזמנה">
         @if (selectedOrder) {
           <!-- Toolbar למעלה — תמיד גלוי -->
           <div class="order-toolbar">
@@ -126,17 +136,17 @@
         } @else {
           <div class="no-image full"><p>בחר הזמנה מהתור</p></div>
         }
-      </main>
+      </section>
 
       <aside class="stats-panel card">
         <h2>סטטיסטיקות בלייב</h2>
         @if (stats) {
           <div class="stat-grid">
-            <div class="stat"><span class="stat-val">{{ stats.printedCount }}</span><span class="stat-label">הודפסו</span></div>
-            <div class="stat"><span class="stat-val">{{ stats.pendingCount }}</span><span class="stat-label">ממתינים</span></div>
-            <div class="stat"><span class="stat-val">{{ stats.averageWaitMinutes | number:'1.0-0' }}</span><span class="stat-label">זמן ממוצע (דק')</span></div>
-            <div class="stat"><span class="stat-val">{{ stats.cancelledCount }}</span><span class="stat-label">בוטלו</span></div>
-            <div class="stat full"><span class="stat-val">{{ stats.currentLoad }}</span><span class="stat-label">עומס נוכחי</span></div>
+            <div class="stat" [attr.aria-label]="stats.printedCount + ' הודפסו'"><span class="stat-val" aria-hidden="true">{{ stats.printedCount }}</span><span class="stat-label" aria-hidden="true">הודפסו</span></div>
+            <div class="stat" [attr.aria-label]="stats.pendingCount + ' ממתינים'"><span class="stat-val" aria-hidden="true">{{ stats.pendingCount }}</span><span class="stat-label" aria-hidden="true">ממתינים</span></div>
+            <div class="stat" [attr.aria-label]="(stats.averageWaitMinutes | number:'1.0-0') + ' דקות, זמן ממוצע'"><span class="stat-val" aria-hidden="true">{{ stats.averageWaitMinutes | number:'1.0-0' }}</span><span class="stat-label" aria-hidden="true">זמן ממוצע (דק')</span></div>
+            <div class="stat" [attr.aria-label]="stats.cancelledCount + ' בוטלו'"><span class="stat-val" aria-hidden="true">{{ stats.cancelledCount }}</span><span class="stat-label" aria-hidden="true">בוטלו</span></div>
+            <div class="stat full" [attr.aria-label]="stats.currentLoad + ' עומס נוכחי'"><span class="stat-val" aria-hidden="true">{{ stats.currentLoad }}</span><span class="stat-label" aria-hidden="true">עומס נוכחי</span></div>
           </div>
         }
       </aside>

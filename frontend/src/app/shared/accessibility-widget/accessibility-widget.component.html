@@ -1,0 +1,164 @@
+<div class="a11y-widget">
+  @if (a11y.state().readingMask) {
+    <div class="a11y-overlay" aria-hidden="true">
+      <div class="a11y-mask-top" [style.height.px]="maskTopHeight()"></div>
+      <div class="a11y-mask-bottom" [style.top.px]="maskBottomTop()"></div>
+    </div>
+  }
+
+  @if (a11y.state().readingGuide) {
+    <div class="a11y-reading-guide" aria-hidden="true" [style.top.px]="guideTop()"></div>
+  }
+
+  <button
+    type="button"
+    class="a11y-fab"
+    (click)="togglePanel()"
+    aria-haspopup="dialog"
+    [attr.aria-expanded]="isOpen()"
+    aria-controls="a11y-panel"
+    aria-label="פתיחת תפריט נגישות"
+    title="נגישות">
+    <svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor" aria-hidden="true" focusable="false">
+      <circle cx="12" cy="4.2" r="2.1"/>
+      <path d="M12 7.2c-1 0-1.9.55-2.36 1.44L7.7 12.4h2.4v9.2h4V12.4h2.4l-1.94-3.76A2.65 2.65 0 0 0 12 7.2Z"/>
+      <path d="M3.6 11.2 8 9.5l.7 2-3.15.95 3.3 4.85-1.7 1.05L3.05 13.3c-.55-.75-.24-1.75.55-2.1Z"/>
+      <path d="M20.4 11.2 16 9.5l-.7 2 3.15.95-3.3 4.85 1.7 1.05 4.1-5.05c.55-.75.24-1.75-.55-2.1Z"/>
+    </svg>
+  </button>
+
+  @if (isOpen()) {
+    <div
+      id="a11y-panel"
+      class="a11y-panel card"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="a11y-panel-title"
+      tabindex="-1"
+      appFocusTrap
+      (escapePressed)="closePanel()">
+      <header class="a11y-panel-header">
+        <h2 id="a11y-panel-title">נגישות</h2>
+      </header>
+
+      <div class="a11y-panel-body">
+        <section class="a11y-group">
+          <h3>גודל טקסט</h3>
+          <div class="a11y-row">
+            <button type="button" class="a11y-btn" (click)="a11y.increaseTextSize()" title="הגדלת טקסט">
+              הגדלת טקסט (A+)
+            </button>
+            <button type="button" class="a11y-btn" (click)="a11y.restoreTextSize()" title="שחזור גודל ברירת מחדל">
+              איפוס גודל
+            </button>
+          </div>
+        </section>
+
+        <section class="a11y-group">
+          <h3>ניגודיות וצבע</h3>
+          <div class="a11y-row">
+            <button
+              type="button"
+              class="a11y-switch"
+              [class.active]="a11y.state().highContrast"
+              [attr.aria-pressed]="a11y.state().highContrast"
+              (click)="toggle('highContrast')"
+              title="ניגודיות גבוהה">
+              ניגודיות גבוהה
+            </button>
+            <button
+              type="button"
+              class="a11y-switch"
+              [class.active]="a11y.state().colorMode === 'dark'"
+              [attr.aria-pressed]="a11y.state().colorMode === 'dark'"
+              (click)="a11y.setColorMode('dark')"
+              title="מצב כהה">
+              מצב כהה
+            </button>
+            <button
+              type="button"
+              class="a11y-switch"
+              [class.active]="a11y.state().colorMode === 'light'"
+              [attr.aria-pressed]="a11y.state().colorMode === 'light'"
+              (click)="a11y.setColorMode('light')"
+              title="מצב בהיר">
+              מצב בהיר
+            </button>
+          </div>
+          <div class="a11y-row">
+            @for (f of displayToggles; track f.key) {
+              <button
+                type="button"
+                class="a11y-switch"
+                [class.active]="a11y.state()[f.key]"
+                [attr.aria-pressed]="a11y.state()[f.key]"
+                (click)="toggle(f.key)"
+                [title]="f.label">
+                {{ f.label }}
+              </button>
+            }
+          </div>
+        </section>
+
+        <section class="a11y-group">
+          <h3>הדגשות</h3>
+          <div class="a11y-row">
+            @for (f of emphasisToggles; track f.key) {
+              <button
+                type="button"
+                class="a11y-switch"
+                [class.active]="a11y.state()[f.key]"
+                [attr.aria-pressed]="a11y.state()[f.key]"
+                (click)="toggle(f.key)"
+                [title]="f.label">
+                {{ f.label }}
+              </button>
+            }
+          </div>
+        </section>
+
+        <section class="a11y-group">
+          <h3>ניווט ותצוגה מסייעת</h3>
+          <div class="a11y-row">
+            @for (f of navToggles; track f.key) {
+              <button
+                type="button"
+                class="a11y-switch"
+                [class.active]="a11y.state()[f.key]"
+                [attr.aria-pressed]="a11y.state()[f.key]"
+                (click)="toggle(f.key)"
+                [title]="f.label">
+                {{ f.label }}
+              </button>
+            }
+          </div>
+        </section>
+
+        <section class="a11y-group">
+          <h3>הקראת עמוד</h3>
+          <div class="a11y-row">
+            <button
+              type="button"
+              class="a11y-switch"
+              [class.active]="a11y.isReading()"
+              [attr.aria-pressed]="a11y.isReading()"
+              (click)="toggleReadPage()"
+              title="הקראת תוכן העמוד בקול">
+              {{ a11y.isReading() ? 'עצירת הקראה' : 'הקראת העמוד' }}
+            </button>
+          </div>
+          @if (a11y.noVoiceForLang()) {
+            <p class="a11y-notice" role="status">
+              לא נמצא במכשיר זה קול הקראה בעברית, ולכן ההקראה לא בוצעה. ניתן להוסיף קול עברי דרך הגדרות המכשיר (לדוגמה ב-Windows: הגדרות ← שעה ושפה ← דיבור ← ניהול קולות).
+            </p>
+          }
+        </section>
+      </div>
+
+      <footer class="a11y-panel-footer">
+        <button type="button" class="a11y-btn a11y-btn-reset" (click)="resetAll()">איפוס הגדרות</button>
+        <button type="button" class="a11y-btn a11y-btn-close" (click)="closePanel()">סגירה</button>
+      </footer>
+    </div>
+  }
+</div>

@@ -457,6 +457,7 @@
 }
 
 .review-nav {
+  position: relative;
   flex: none;
   width: 40px;
   height: 40px;
@@ -470,6 +471,13 @@
   font-size: 20px;
   font-weight: 800;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+
+  // Invisible touch-target expansion — doesn't affect visual size/layout.
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+  }
 }
 
 .review-dots {
@@ -479,6 +487,7 @@
 }
 
 .review-dot {
+  position: relative;
   width: 8px;
   height: 8px;
   border-radius: 999px;
@@ -487,6 +496,13 @@
   padding: 0;
   cursor: pointer;
   transition: all 0.3s;
+
+  // Invisible touch-target expansion — doesn't affect visual size/layout.
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -12px;
+  }
 
   &.active { width: 26px; background: var(--l-teal); }
 }
@@ -684,7 +700,7 @@
 // ---------- Floating WhatsApp ----------
 .floating-wa {
   position: fixed;
-  bottom: 20px;
+  bottom: calc(20px + var(--cookie-banner-offset, 0px));
   inset-inline-start: 20px;
   z-index: 60;
   width: 56px;
@@ -696,6 +712,7 @@
   align-items: center;
   justify-content: center;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  transition: bottom 0.2s ease;
 }
 
 // ---------- Responsive ----------

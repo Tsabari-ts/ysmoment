@@ -1,0 +1,27 @@
+@if (consent.showBanner()) {
+  <div
+    #banner
+    class="cookie-banner-outer"
+    [class.leaving]="isLeaving()">
+    <div class="cookie-card card" role="region" aria-label="הודעה על שימוש בעוגיות">
+      <div class="cookie-text">
+        <h2 class="cookie-title">אנו מכבדים את פרטיותכם</h2>
+        <p class="cookie-desc">
+          אתר זה משתמש בעוגיות (Cookies) וטכנולוגיות דומות כדי לשפר את חוויית הגלישה שלכם, לזכור את
+          ההעדפות שלכם, לנתח את השימוש באתר ולשפר את השירותים שלנו. בלחיצה על "קבלה", הנכם מסכימים
+          לשימוש בעוגיות כמפורט
+          <button type="button" class="cookie-link" (click)="openPrivacy()">במדיניות הפרטיות שלנו</button>.
+        </p>
+      </div>
+      <div class="cookie-actions">
+        <button type="button" class="btn-secondary" (click)="decline()">דחייה</button>
+        <button type="button" class="btn-primary" (click)="accept()">קבלה</button>
+      </div>
+    </div>
+  </div>
+}
+
+<app-modal [open]="privacyOpen()" label="מדיניות הפרטיות" (closed)="closePrivacy()">
+  <h2 class="visually-hidden">מדיניות הפרטיות</h2>
+  <div [innerHTML]="privacyPolicyHtml"></div>
+</app-modal>

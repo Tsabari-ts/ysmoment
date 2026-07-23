@@ -6,11 +6,11 @@
 
   @if (summary) {
     <div class="summary-grid card">
-      <div class="stat"><span class="val">{{ summary.totalOrders }}</span><span>סך הזמנות</span></div>
-      <div class="stat"><span class="val">{{ summary.totalMagnets }}</span><span>סך מגנטים</span></div>
-      <div class="stat"><span class="val">{{ summary.printedCount }}</span><span>הודפסו</span></div>
-      <div class="stat"><span class="val">{{ summary.cancelledCount }}</span><span>בוטלו</span></div>
-      <div class="stat"><span class="val">{{ summary.averageWaitMinutes | number:'1.0-0' }}</span><span>זמן המתנה ממוצע (דק')</span></div>
+      <div class="stat" [attr.aria-label]="summary.totalOrders + ' סך הזמנות'"><span class="val" aria-hidden="true">{{ summary.totalOrders }}</span><span aria-hidden="true">סך הזמנות</span></div>
+      <div class="stat" [attr.aria-label]="summary.totalMagnets + ' סך מגנטים'"><span class="val" aria-hidden="true">{{ summary.totalMagnets }}</span><span aria-hidden="true">סך מגנטים</span></div>
+      <div class="stat" [attr.aria-label]="summary.printedCount + ' הודפסו'"><span class="val" aria-hidden="true">{{ summary.printedCount }}</span><span aria-hidden="true">הודפסו</span></div>
+      <div class="stat" [attr.aria-label]="summary.cancelledCount + ' בוטלו'"><span class="val" aria-hidden="true">{{ summary.cancelledCount }}</span><span aria-hidden="true">בוטלו</span></div>
+      <div class="stat" [attr.aria-label]="(summary.averageWaitMinutes | number:'1.0-0') + ' דקות, זמן המתנה ממוצע'"><span class="val" aria-hidden="true">{{ summary.averageWaitMinutes | number:'1.0-0' }}</span><span aria-hidden="true">זמן המתנה ממוצע (דק')</span></div>
     </div>
 
     @if (summary.peakHours.length) {
@@ -30,6 +30,7 @@
     <p class="history-note">כולל הזמנות שבוטלו · ללא תמונות</p>
     <div class="table-wrap">
       <table>
+        <caption class="visually-hidden">היסטוריית הזמנות</caption>
         <thead>
           <tr>
             <th>#</th>

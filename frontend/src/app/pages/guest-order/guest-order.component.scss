@@ -20,12 +20,20 @@
   margin-bottom: 1rem;
 
   .banner-close {
+    position: relative;
     background: none;
     border: none;
     color: inherit;
     cursor: pointer;
     font-size: 0.9rem;
     flex-shrink: 0;
+
+    // Invisible touch-target expansion — doesn't affect visual size/layout.
+    &::before {
+      content: '';
+      position: absolute;
+      inset: -14px;
+    }
   }
 }
 

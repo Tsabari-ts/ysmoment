@@ -1,0 +1,122 @@
+:host {
+  display: contents;
+}
+
+.cookie-banner-outer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10000;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+  animation: cookie-fade-in 0.25s ease-out;
+
+  &.leaving {
+    animation: cookie-fade-out 0.22s ease-in forwards;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cookie-banner-outer {
+    animation: none;
+  }
+}
+
+@keyframes cookie-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes cookie-fade-out {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+
+.cookie-card {
+  pointer-events: auto;
+  width: 100%;
+  border-radius: 0;
+  border-width: 1px 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.cookie-text {
+  flex: 1 1 320px;
+}
+
+.cookie-title {
+  margin: 0 0 0.35rem;
+  font-size: 1.05rem;
+}
+
+.cookie-desc {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+.cookie-link {
+  background: none;
+  border: none;
+  padding: 0;
+  // Lighter than --primary specifically for AA contrast on --surface at this font size
+  // (var(--primary) itself only reaches ~4.1:1 here, just under the 4.5:1 text minimum).
+  color: #9aa3f5;
+  font: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.cookie-actions {
+  display: flex;
+  gap: 0.6rem;
+  flex: none;
+
+  .btn-primary,
+  .btn-secondary {
+    width: auto;
+    padding-inline: 1.5rem;
+  }
+}
+
+@media (min-width: 640px) {
+  .cookie-banner-outer {
+    padding: 0 1rem 1rem;
+  }
+
+  .cookie-card {
+    max-width: 680px;
+    border-radius: var(--radius);
+    border-width: 1px;
+  }
+}
+
+@media (max-width: 480px) {
+  .cookie-actions {
+    width: 100%;
+
+    .btn-primary,
+    .btn-secondary {
+      flex: 1;
+    }
+  }
+}

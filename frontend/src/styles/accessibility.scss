@@ -1,0 +1,154 @@
+// Global accessibility toolbar overrides.
+// Applied as classes on <html> by AccessibilityService — see
+// src/app/core/accessibility.service.ts. Kept out of individual components
+// on purpose (per the widget's CSS strategy) so one place controls every
+// override, and !important + a low-specificity `body *` selector is used
+// deliberately: Angular's emulated encapsulation adds an attribute selector
+// to every component rule, so a plain `:root` variable redefinition would
+// lose to e.g. the landing page's locally-scoped `--l-bg`.
+
+// ---------- Text size ----------
+html.accessibility-text-step-1 { font-size: 112.5%; }
+html.accessibility-text-step-2 { font-size: 125%; }
+html.accessibility-text-step-3 { font-size: 137.5%; }
+
+// ---------- Readable font ----------
+html.accessibility-readable-font body,
+html.accessibility-readable-font body * {
+  font-family: 'Assistant', Arial, sans-serif !important;
+}
+
+// ---------- High contrast ----------
+html.accessibility-high-contrast body {
+  background: #000 !important;
+}
+html.accessibility-high-contrast body * {
+  background-color: #000 !important;
+  background-image: none !important;
+  color: #fff !important;
+  border-color: #fff !important;
+  text-shadow: none !important;
+  box-shadow: none !important;
+}
+html.accessibility-high-contrast body button,
+html.accessibility-high-contrast body a,
+html.accessibility-high-contrast body [role='button'],
+html.accessibility-high-contrast body input,
+html.accessibility-high-contrast body select,
+html.accessibility-high-contrast body textarea {
+  border: 2px solid #ffe600 !important;
+  color: #ffe600 !important;
+}
+html.accessibility-high-contrast body a {
+  text-decoration: underline !important;
+}
+
+// ---------- Dark mode ----------
+html.accessibility-dark-mode body {
+  background: #121212 !important;
+}
+html.accessibility-dark-mode body * {
+  background-color: #121212 !important;
+  background-image: none !important;
+  color: #f2f2f2 !important;
+  border-color: #3a3a3a !important;
+}
+html.accessibility-dark-mode body button,
+html.accessibility-dark-mode body a,
+html.accessibility-dark-mode body [role='button'] {
+  color: #7fd6ff !important;
+}
+
+// ---------- Light mode ----------
+html.accessibility-light-mode body {
+  background: #ffffff !important;
+}
+html.accessibility-light-mode body * {
+  background-color: #ffffff !important;
+  background-image: none !important;
+  color: #1a1a1a !important;
+  border-color: #c8c8c8 !important;
+}
+html.accessibility-light-mode body button,
+html.accessibility-light-mode body a,
+html.accessibility-light-mode body [role='button'] {
+  color: #0645ad !important;
+}
+
+// ---------- Highlight links ----------
+html.accessibility-highlight-links body a {
+  text-decoration: underline !important;
+  color: #ffbb00 !important;
+  background: #1a1a1a !important;
+}
+
+// ---------- Highlight buttons ----------
+html.accessibility-highlight-buttons body button,
+html.accessibility-highlight-buttons body [role='button'],
+html.accessibility-highlight-buttons body input[type='submit'] {
+  border: 3px solid #ffbb00 !important;
+  outline: 2px solid #1a1a1a !important;
+  outline-offset: 2px !important;
+}
+
+// ---------- Text spacing ----------
+html.accessibility-text-spacing body,
+html.accessibility-text-spacing body * {
+  line-height: 1.9 !important;
+  letter-spacing: 0.06em !important;
+  word-spacing: 0.12em !important;
+}
+
+// ---------- Disable animations ----------
+// Near-zero duration (rather than `none`) so code that waits on
+// animationend/transitionend still fires, it just happens instantly.
+html.accessibility-disable-animations *,
+html.accessibility-disable-animations *::before,
+html.accessibility-disable-animations *::after {
+  animation-duration: 0.001ms !important;
+  animation-delay: 0ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  transition-delay: 0ms !important;
+  scroll-behavior: auto !important;
+}
+
+// ---------- Large cursor ----------
+html.accessibility-large-cursor,
+html.accessibility-large-cursor * {
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24"><path d="M3 2 L3 20 L7.5 15.8 L10.5 22 L13.2 20.7 L10.3 14.6 L16.5 14.5 Z" fill="black" stroke="white" stroke-width="1.4" stroke-linejoin="round"/></svg>') 2 2, auto !important;
+}
+
+// ---------- Keyboard focus highlight ----------
+html.accessibility-focus-highlight *:focus {
+  outline: 3px solid #ffbb00 !important;
+  outline-offset: 3px !important;
+  border-radius: 2px;
+}
+
+// ---------- Hide images ----------
+html.accessibility-hide-images img {
+  visibility: hidden !important;
+}
+
+// ---------- Highlight headings ----------
+html.accessibility-highlight-headings h1,
+html.accessibility-highlight-headings h2,
+html.accessibility-highlight-headings h3,
+html.accessibility-highlight-headings h4,
+html.accessibility-highlight-headings h5,
+html.accessibility-highlight-headings h6 {
+  outline: 2px dashed #ffbb00 !important;
+  outline-offset: 3px !important;
+  background: rgba(255, 187, 0, 0.12) !important;
+}
+
+// ---------- Magnifier ----------
+// #a11y-viewport wraps <router-outlet> in app.component.html; the widget
+// itself lives outside it so it's never scaled. Transform-origin is driven
+// by --a11y-mx / --a11y-my, set from mousemove in the widget component.
+html.accessibility-magnifier-active #a11y-viewport {
+  transform: scale(1.5);
+  transform-origin: var(--a11y-mx, 50%) var(--a11y-my, 50%);
+  transition: transform 0.05s linear;
+}
