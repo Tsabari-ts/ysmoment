@@ -23,6 +23,10 @@
           <input type="checkbox" [ngModel]="event.ordersOpen" (ngModelChange)="toggleOrdersOpen($event)" />
           קבלת הזמנות פתוחה
         </label>
+        <label class="toggle-inline">
+          <input type="checkbox" [ngModel]="event.muteCustomerNotifications" (ngModelChange)="toggleMuteNotifications($event)" />
+          אל תשלח התראות ללקוחות
+        </label>
         <button class="btn-warning" (click)="togglePause()">
           {{ event.ordersPaused ? 'פתח הזמנות' : 'עצור הזמנות זמנית' }}
         </button>
@@ -64,6 +68,9 @@
               <p class="order-meta">{{ sizeLabels[order.magnetSize] }} × {{ order.quantity }} · {{ order.waitMinutes }} דק'</p>
               @if (order.notificationFailed) {
                 <p class="notify-failed">⚠ שליחת ה-SMS נכשלה</p>
+              }
+              @if (order.imageUploadFailed) {
+                <p class="notify-failed">⚠ העלאת התמונה נכשלה</p>
               }
             </div>
           } @empty {
@@ -127,6 +134,8 @@
                 <p>לא ניתן לטעון את התמונה</p>
                 <button class="btn-action btn-retry" (click)="retryImage()">נסה שוב</button>
               </div>
+            } @else if (selectedOrder.status === OrderStatus.PendingUpload) {
+              <div class="no-image"><p>מעלה תמונה, נא להמתין...</p></div>
             } @else {
               <div class="no-image">
                 <p>התמונה נמחקה (סטטוס: {{ statusLabels[selectedOrder.status] }})</p>

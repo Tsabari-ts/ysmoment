@@ -12,12 +12,14 @@ namespace YsMoment.Api.Controllers;
 public class EventsController : ControllerBase
 {
     private readonly EventService _events;
+    private readonly OrderService _orders;
     private readonly QrCodeService _qr;
     private readonly RealtimeNotifier _notifier;
 
-    public EventsController(EventService events, QrCodeService qr, RealtimeNotifier notifier)
+    public EventsController(EventService events, OrderService orders, QrCodeService qr, RealtimeNotifier notifier)
     {
         _events = events;
+        _orders = orders;
         _qr = qr;
         _notifier = notifier;
     }
@@ -38,6 +40,23 @@ public class EventsController : ControllerBase
         var evt = await _events.GetByIdAsync(id);
         if (evt == null) return NotFound();
         return Ok(evt with { QrCodeBase64 = _qr.GenerateBase64(evt.GuestUrl) });
+    }
+
+    // Merges the getEvent/getOrders(all=true)/getStats calls the dashboard used to make
+    // separately into one round trip, loading the Event once and reusing it for all three.
+    [Authorize]
+    [HttpGet("{id:guid}/dashboard")]
+    public async Task<ActionResult<EventDashboardResponse>> GetDashboard(Guid id)
+    {
+        var evt = await _events.GetEntityAsync(id);
+        if (evt == null) return NotFound();
+
+        var eventResponse = _events.ToEventResponse(evt);
+        eventResponse = eventResponse with { QrCodeBase64 = _qr.GenerateBase64(eventResponse.GuestUrl) };
+        var orders = await _orders.GetAllOrdersAsync(evt);
+        var stats = await _orders.GetStatsAsync(evt);
+
+        return Ok(new EventDashboardResponse(eventResponse, orders, stats));
     }
 
     [EnableRateLimiting("guest-read")]

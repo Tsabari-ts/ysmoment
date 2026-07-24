@@ -40,11 +40,14 @@ public class LocalImageStorageService : IImageStorageService
         return Task.CompletedTask;
     }
 
-    public string? GetPublicUrl(string? imagePath)
+    // No local transformation pipeline — dev serves the same file for both original and preview.
+    public string? GetOriginalUrl(string? imagePath)
     {
         if (string.IsNullOrEmpty(imagePath)) return null;
         return $"{_baseUrl.TrimEnd('/')}/{imagePath.Replace('\\', '/')}";
     }
+
+    public string? GetPreviewUrl(string? imagePath) => GetOriginalUrl(imagePath);
 
     public string? GetPhysicalPath(string? imagePath)
     {

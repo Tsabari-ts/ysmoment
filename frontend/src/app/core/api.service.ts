@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import {
   DashboardStats,
+  EventDashboardResponse,
   EventResponse,
   EventSummary,
   EventType,
@@ -36,6 +37,10 @@ export class ApiService {
 
   getEvent(id: string) {
     return this.http.get<EventResponse>(`${environment.apiUrl}/events/${id}`, { headers: this.headers() });
+  }
+
+  getDashboard(id: string) {
+    return this.http.get<EventDashboardResponse>(`${environment.apiUrl}/events/${id}/dashboard`, { headers: this.headers() });
   }
 
   getGuestEvent(slug: string) {

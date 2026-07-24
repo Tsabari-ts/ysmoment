@@ -21,6 +21,7 @@ public class Event
     public bool OrdersOpen { get; set; } = true;
     public bool OrdersPaused { get; set; }
     public bool IsEnded { get; set; }
+    public bool MuteCustomerNotifications { get; set; }
 
     public int NextOrderNumber { get; set; } = 1000;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

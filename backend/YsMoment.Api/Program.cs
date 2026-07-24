@@ -1,6 +1,7 @@
 using System.Text;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using YsMoment.Api.Hubs;
@@ -18,6 +19,11 @@ builder.Services.AddSignalR();
 builder.Services.AddInfrastructure(builder.Configuration, builder.Environment);
 builder.Services.AddScoped<QrCodeService>();
 builder.Services.AddScoped<RealtimeNotifier>();
+
+builder.Services.AddResponseCompression(options =>
+{
+    options.EnableForHttps = true;
+});
 
 builder.Services.AddCors(options =>
 {
@@ -119,6 +125,8 @@ app.UseExceptionHandler(errorApp => errorApp.Run(async context =>
     context.Response.StatusCode = StatusCodes.Status500InternalServerError;
     await context.Response.WriteAsJsonAsync(new { message = "אירעה שגיאה בשרת. נסו שוב מאוחר יותר." });
 }));
+
+app.UseResponseCompression();
 
 using (var scope = app.Services.CreateScope())
 {

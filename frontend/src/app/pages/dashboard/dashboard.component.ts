@@ -75,18 +75,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   loadAll(): void {
     this.loading = true;
-    this.api.getEvent(this.eventId).subscribe((evt) => {
-      this.event = evt;
-      if (evt.isEnded) {
+    this.api.getDashboard(this.eventId).subscribe((data) => {
+      this.event = data.event;
+      this.orders = data.orders;
+      this.stats = data.stats;
+      if (data.event.isEnded) {
         this.router.navigate(['/admin/events', this.eventId, 'summary']);
       }
-    });
-    this.api.getOrders(this.eventId, true).subscribe((orders) => {
-      this.orders = orders;
-      if (!this.selectedOrder && orders.length) this.selectOrder(orders[0]);
+      if (!this.selectedOrder && this.orders.length) this.selectOrder(this.orders[0]);
       this.loading = false;
     });
-    this.api.getStats(this.eventId).subscribe((stats) => (this.stats = stats));
   }
 
   selectOrder(order: OrderResponse, reloadImage = true): void {
@@ -133,7 +131,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
       New: OrderStatus.New,
       InProgress: OrderStatus.InProgress,
       Ready: OrderStatus.Ready,
-      Cancelled: OrderStatus.Cancelled
+      Cancelled: OrderStatus.Cancelled,
+      PendingUpload: OrderStatus.PendingUpload
     };
     return map[status] ?? (Number(status) as OrderStatus);
   }
@@ -198,6 +197,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
   }
 
+  toggleMuteNotifications(value: boolean): void {
+    this.api.updateEventSettings(this.eventId, { muteCustomerNotifications: value }).subscribe((evt) => {
+      this.event = evt;
+    });
+  }
+
   downloadQr(): void {
     if (!this.event?.qrCodeBase64) return;
     const a = document.createElement('a');
@@ -216,7 +221,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   get pendingOrders(): OrderResponse[] {
     return this.orders.filter((o) => {
       const s = this.normStatus(o.status);
-      return s === OrderStatus.New || s === OrderStatus.InProgress;
+      return s === OrderStatus.New || s === OrderStatus.InProgress || s === OrderStatus.PendingUpload;
     });
   }
 

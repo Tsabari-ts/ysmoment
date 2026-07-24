@@ -35,6 +35,10 @@ public static class DependencyInjection
         services.AddSingleton<ISmsQueue>(sp => sp.GetRequiredService<SmsQueue>());
         services.AddHostedService<SmsBackgroundService>();
 
+        services.AddSingleton<ImageUploadQueue>();
+        services.AddSingleton<IImageUploadQueue>(sp => sp.GetRequiredService<ImageUploadQueue>());
+        services.AddHostedService<ImageUploadBackgroundService>();
+
         services.AddScoped<EventService>();
         services.AddScoped<OrderService>();
         services.AddScoped<AuthService>();

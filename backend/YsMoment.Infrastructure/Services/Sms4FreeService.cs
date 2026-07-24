@@ -21,6 +21,7 @@ public class Sms4FreeService : ISmsService
     private readonly string _user;
     private readonly string _pass;
     private readonly string _sender;
+    private readonly string _eventEndedMessage;
 
     public Sms4FreeService(HttpClient http, IConfiguration config, ILogger<Sms4FreeService> logger)
     {
@@ -30,14 +31,15 @@ public class Sms4FreeService : ISmsService
         _user = config["Sms4Free:User"] ?? throw new InvalidOperationException("Sms4Free:User is required.");
         _pass = config["Sms4Free:Pass"] ?? throw new InvalidOperationException("Sms4Free:Pass is required.");
         _sender = config["Sms4Free:Sender"] ?? throw new InvalidOperationException("Sms4Free:Sender is required.");
+        _eventEndedMessage = BuildEventEndedMessage(config["App:LandingPageUrl"]);
     }
 
-    // Client-approved final copy — exactly 134 characters, tuned to stay within a
-    // single SMS segment. Do not append anything to it (signature, extra link, etc.)
-    // without re-testing the length through the actual provider: emoji and non-GSM
-    // characters can silently shrink the per-segment budget and cause a silent split.
-    private const string EventEndedMessage =
-        "תודה שהשתתפתם באירוע והשתמשתם בשירות הברקוד שלנו📸 רוצים אותנו באירוע שלכם? בואו נדבר https://api.whatsapp.com/send?phone=972524225365";
+    // Client-approved copy, kept close to the original 134-character single-segment length.
+    // Do not append anything beyond the link (signature, extra text, etc.) without re-testing
+    // the length through the actual provider: emoji and non-GSM characters can silently shrink
+    // the per-segment budget and cause a silent split.
+    private static string BuildEventEndedMessage(string? landingPageUrl) =>
+        $"תודה שהשתתפתם באירוע והשתמשתם בשירות הברקוד שלנו📸 רוצים אותנו באירוע שלכם? בקרו באתר שלנו: {landingPageUrl ?? "https://ysmoment.vercel.app/"}";
 
     public Task SendOrderConfirmationAsync(string phone, string customerName, int orderNumber, int queuePosition, int estimatedMinutes)
         => SendAsync(phone, $"שלום {customerName}, הזמנתך מספר {orderNumber} התקבלה בהצלחה ואנחנו כבר מתחילים לעבוד עליה! 😊");
@@ -46,7 +48,7 @@ public class Sms4FreeService : ISmsService
         => SendAsync(phone, $"{customerName}, ההזמנה שלך מוכנה! 🎉 בעוד כמה דקות היא תופיע על לוח המגנטים.");
 
     public Task SendEventThankYouAsync(string phone)
-        => SendAsync(phone, EventEndedMessage);
+        => SendAsync(phone, _eventEndedMessage);
 
     private async Task SendAsync(string phone, string message)
     {

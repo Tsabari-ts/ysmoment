@@ -28,7 +28,7 @@ public class CloudinaryImageStorageService : IImageStorageService
     public async Task<string> SaveAsync(Stream stream, string fileName, Guid eventId, Guid orderId)
     {
         var publicId = $"{_folder}/{eventId}/{orderId}";
-        var uploadParams = new RawUploadParams
+        var uploadParams = new ImageUploadParams
         {
             File = new FileDescription(fileName, stream),
             PublicId = publicId,
@@ -46,15 +46,20 @@ public class CloudinaryImageStorageService : IImageStorageService
     public async Task DeleteAsync(string imagePath)
     {
         if (string.IsNullOrEmpty(imagePath)) return;
-        var deleteParams = new DeletionParams(imagePath) { ResourceType = ResourceType.Raw };
+        var deleteParams = new DeletionParams(imagePath) { ResourceType = ResourceType.Image };
         await _cloudinary.DestroyAsync(deleteParams);
     }
 
-    public string? GetPublicUrl(string? imagePath)
+    public string? GetOriginalUrl(string? imagePath)
     {
         if (string.IsNullOrEmpty(imagePath)) return null;
-        // Raw resource URL format
-        return $"https://res.cloudinary.com/{_cloudName}/raw/upload/{imagePath}";
+        return $"https://res.cloudinary.com/{_cloudName}/image/upload/{imagePath}";
+    }
+
+    public string? GetPreviewUrl(string? imagePath)
+    {
+        if (string.IsNullOrEmpty(imagePath)) return null;
+        return $"https://res.cloudinary.com/{_cloudName}/image/upload/f_auto,q_auto,w_400/{imagePath}";
     }
 
     // Cloud storage has no physical path — callers must use GetPublicUrl instead

@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using YsMoment.Core.Interfaces;
 
@@ -10,18 +11,20 @@ namespace YsMoment.Infrastructure.Services;
 public class ConsoleSmsService : ISmsService
 {
     private readonly ILogger<ConsoleSmsService> _logger;
+    private readonly string _eventEndedMessage;
 
-    public ConsoleSmsService(ILogger<ConsoleSmsService> logger)
+    public ConsoleSmsService(ILogger<ConsoleSmsService> logger, IConfiguration config)
     {
         _logger = logger;
+        _eventEndedMessage = BuildEventEndedMessage(config["App:LandingPageUrl"]);
     }
 
-    // Client-approved final copy — exactly 134 characters, tuned to stay within a
-    // single SMS segment. Do not append anything to it (signature, extra link, etc.)
-    // without re-testing the length through the actual provider: emoji and non-GSM
-    // characters can silently shrink the per-segment budget and cause a silent split.
-    private const string EventEndedMessage =
-        "תודה שהשתתפתם באירוע והשתמשתם בשירות הברקוד שלנו📸 רוצים אותנו באירוע שלכם? בואו נדבר https://api.whatsapp.com/send?phone=972524225365";
+    // Client-approved copy, kept close to the original 134-character single-segment length.
+    // Do not append anything beyond the link (signature, extra text, etc.) without re-testing
+    // the length through the actual provider: emoji and non-GSM characters can silently shrink
+    // the per-segment budget and cause a silent split.
+    private static string BuildEventEndedMessage(string? landingPageUrl) =>
+        $"תודה שהשתתפתם באירוע והשתמשתם בשירות הברקוד שלנו📸 רוצים אותנו באירוע שלכם? בקרו באתר שלנו: {landingPageUrl ?? "https://ysmoment.vercel.app/"}";
 
     public Task SendOrderConfirmationAsync(string phone, string customerName, int orderNumber, int queuePosition, int estimatedMinutes)
     {
@@ -43,7 +46,7 @@ public class ConsoleSmsService : ISmsService
 
     public Task SendEventThankYouAsync(string phone)
     {
-        var message = $"[SMS → {phone}] {EventEndedMessage}";
+        var message = $"[SMS → {phone}] {_eventEndedMessage}";
 
         _logger.LogInformation("{Message}", message);
         Console.WriteLine(message);

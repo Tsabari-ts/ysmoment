@@ -137,6 +137,7 @@
   &.badge-status-1 { background: #fdcb6e33; color: #fdcb6e; }
   &.badge-status-2 { background: #00b89433; color: #00b894; }
   &.badge-status-3 { background: #e1705533; color: #e17055; }
+  &.badge-status-4 { background: #a29bfe33; color: #a29bfe; }
 }
 
 .order-name { margin: 0.2rem 0; font-weight: 500; font-size: 0.9rem; }
@@ -184,6 +185,7 @@
     &.status-1 { color: #fdcb6e; }
     &.status-2 { color: #00b894; }
     &.status-3 { color: #e17055; }
+    &.status-4 { color: #a29bfe; }
   }
 }
 

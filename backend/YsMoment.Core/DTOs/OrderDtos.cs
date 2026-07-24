@@ -31,7 +31,8 @@ public record OrderResponse(
     int? PositionInQueue,
     int? EstimatedWaitMinutes,
     int WaitMinutes,
-    bool NotificationFailed
+    bool NotificationFailed,
+    bool ImageUploadFailed
 );
 
 public record OrderStatusResponse(

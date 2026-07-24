@@ -13,13 +13,15 @@ public class OrderService
     private readonly AppDbContext _db;
     private readonly IImageStorageService _storage;
     private readonly ISmsQueue _smsQueue;
+    private readonly IImageUploadQueue _imageUploadQueue;
     private readonly VerificationCodeService _verification;
 
-    public OrderService(AppDbContext db, IImageStorageService storage, ISmsQueue smsQueue, VerificationCodeService verification)
+    public OrderService(AppDbContext db, IImageStorageService storage, ISmsQueue smsQueue, IImageUploadQueue imageUploadQueue, VerificationCodeService verification)
     {
         _db = db;
         _storage = storage;
         _smsQueue = smsQueue;
+        _imageUploadQueue = imageUploadQueue;
         _verification = verification;
     }
 
@@ -40,15 +42,19 @@ public class OrderService
     {
         var evt = await _db.Events.FindAsync(eventId);
         if (evt == null) return [];
+        return await GetAllOrdersAsync(evt);
+    }
 
+    // Overload for callers (e.g. the merged dashboard endpoint) that already loaded the Event,
+    // so the dashboard doesn't do a redundant Events lookup per call.
+    public async Task<List<OrderResponse>> GetAllOrdersAsync(Event evt)
+    {
         var orders = await _db.Orders
-            .Where(o => o.EventId == eventId)
+            .Where(o => o.EventId == evt.Id)
             .OrderBy(o => o.CreatedAt)
             .ToListAsync();
 
-        var queue = orders
-            .Where(o => o.Status == OrderStatus.New || o.Status == OrderStatus.InProgress)
-            .ToList();
+        var queue = orders.Where(IsActiveQueueMember).ToList();
 
         return orders.Select(o => MapOrder(o, evt, GetQueuePosition(queue, o))).ToList();
     }
@@ -80,10 +86,15 @@ public class OrderService
     {
         var evt = await _db.Events.FindAsync(eventId);
         if (evt == null) return new DashboardStatsResponse(0, 0, 0, 0, "ריק");
+        return await GetStatsAsync(evt);
+    }
 
-        var orders = await _db.Orders.Where(o => o.EventId == eventId).ToListAsync();
+    // Overload for callers (e.g. the merged dashboard endpoint) that already loaded the Event.
+    public async Task<DashboardStatsResponse> GetStatsAsync(Event evt)
+    {
+        var orders = await _db.Orders.Where(o => o.EventId == evt.Id).ToListAsync();
         var printed = orders.Count(o => o.Status == OrderStatus.Ready);
-        var pending = orders.Count(o => o.Status is OrderStatus.New or OrderStatus.InProgress);
+        var pending = orders.Count(IsActiveQueueMember);
         var cancelled = orders.Count(o => o.Status == OrderStatus.Cancelled);
 
         var avgWait = orders
@@ -119,48 +130,39 @@ public class OrderService
             throw new InvalidOperationException("גודל מגנט זה אינו זמין באירוע.");
 
         var orderId = Guid.NewGuid();
-        var imagePath = await _storage.SaveAsync(imageStream, fileName, evt.Id, orderId);
 
-        Order order;
-        // Retry loop guards against concurrent requests colliding on NextOrderNumber
-        while (true)
+        // Buffer the image into memory now (fast, local, in-request) instead of awaiting the
+        // actual upload to storage — that happens in the background via ImageUploadQueue so the
+        // guest doesn't wait on network I/O to the storage provider.
+        using var buffer = new MemoryStream();
+        await imageStream.CopyToAsync(buffer);
+        var imageBytes = buffer.ToArray();
+
+        var orderNumber = await ReserveNextOrderNumberAsync(evt.Id);
+        var order = new Order
         {
-            await _db.Entry(evt).ReloadAsync();
-            var orderNumber = evt.NextOrderNumber++;
-            order = new Order
-            {
-                Id = orderId,
-                EventId = evt.Id,
-                PublicToken = GeneratePublicToken(),
-                OrderNumber = orderNumber,
-                CustomerName = request.CustomerName.Trim(),
-                Phone = NormalizePhone(request.Phone),
-                ImagePath = imagePath,
-                MagnetSize = request.MagnetSize,
-                Quantity = request.Quantity,
-                Status = OrderStatus.New
-            };
-            _db.Orders.Add(order);
-            try
-            {
-                await _db.SaveChangesAsync();
-                break;
-            }
-            catch (Microsoft.EntityFrameworkCore.DbUpdateException ex)
-                when (ex.InnerException?.Message.Contains("IX_Orders_EventId_OrderNumber") == true
-                   || ex.InnerException?.Message.Contains("unique") == true)
-            {
-                _db.Entry(order).State = Microsoft.EntityFrameworkCore.EntityState.Detached;
-                _db.Entry(evt).State = Microsoft.EntityFrameworkCore.EntityState.Detached;
-                evt = await _db.Events.FirstOrDefaultAsync(e => e.Slug == slug) ?? evt;
-            }
-        }
+            Id = orderId,
+            EventId = evt.Id,
+            PublicToken = GeneratePublicToken(),
+            OrderNumber = orderNumber,
+            CustomerName = request.CustomerName.Trim(),
+            Phone = NormalizePhone(request.Phone),
+            ImagePath = null,
+            MagnetSize = request.MagnetSize,
+            Quantity = request.Quantity,
+            Status = OrderStatus.PendingUpload
+        };
+        _db.Orders.Add(order);
+        await _db.SaveChangesAsync();
+
+        _imageUploadQueue.Enqueue(new ImageUploadJob(order.Id, evt.Id, imageBytes, fileName));
 
         var queue = await GetActiveQueue(evt.Id);
         var position = queue.Count;
         var estimated = position * evt.AveragePrepTimeMinutes;
 
-        _smsQueue.Enqueue(new OrderConfirmationSmsJob(order.Id, order.Phone, order.CustomerName, order.OrderNumber, position, estimated));
+        if (!evt.MuteCustomerNotifications)
+            _smsQueue.Enqueue(new OrderConfirmationSmsJob(order.Id, order.Phone, order.CustomerName, order.OrderNumber, position, estimated));
 
         return MapPublicOrder(order, evt, position);
     }
@@ -171,7 +173,7 @@ public class OrderService
         if (order == null) return null;
 
         var queue = await GetActiveQueue(order.EventId);
-        var position = order.Status is OrderStatus.New or OrderStatus.InProgress
+        var position = IsActiveQueueMember(order)
             ? GetQueuePosition(queue, order) : 0;
 
         return MapPublicOrder(order, order.Event, position);
@@ -278,7 +280,8 @@ public class OrderService
             await _storage.DeleteAsync(order.ImagePath);
             order.ImagePath = null;
             order.ImageDeleted = true;
-            _smsQueue.Enqueue(new OrderReadySmsJob(order.Id, order.Phone, order.CustomerName));
+            if (!order.Event.MuteCustomerNotifications)
+                _smsQueue.Enqueue(new OrderReadySmsJob(order.Id, order.Phone, order.CustomerName));
         }
 
         await _db.SaveChangesAsync();
@@ -337,7 +340,7 @@ public class OrderService
         var order = await _db.Orders.FindAsync(orderId);
         if (order == null || order.ImageDeleted || string.IsNullOrEmpty(order.ImagePath))
             return null;
-        return _storage.GetPublicUrl(order.ImagePath);
+        return _storage.GetOriginalUrl(order.ImagePath);
     }
 
     public async Task<OrderStatusResponse?> GetStatusAsync(Guid orderId)
@@ -346,7 +349,7 @@ public class OrderService
         if (order == null) return null;
 
         var queue = await GetActiveQueue(order.EventId);
-        var position = order.Status is OrderStatus.New or OrderStatus.InProgress
+        var position = IsActiveQueueMember(order)
             ? GetQueuePosition(queue, order) : (int?)null;
         var estimated = position.HasValue ? position.Value * order.Event.AveragePrepTimeMinutes : (int?)null;
 
@@ -355,9 +358,16 @@ public class OrderService
 
     private async Task<List<Order>> GetActiveQueue(Guid eventId)
         => await _db.Orders
-            .Where(o => o.EventId == eventId && (o.Status == OrderStatus.New || o.Status == OrderStatus.InProgress))
+            .Where(o => o.EventId == eventId &&
+                (o.Status == OrderStatus.New || o.Status == OrderStatus.InProgress || o.Status == OrderStatus.PendingUpload))
             .OrderBy(o => o.CreatedAt)
             .ToListAsync();
+
+    // PendingUpload counts toward queue position/ETA just like New — the guest already
+    // holds their place in line as soon as the order is created, regardless of whether
+    // their image has finished uploading to storage in the background.
+    private static bool IsActiveQueueMember(Order order)
+        => order.Status is OrderStatus.New or OrderStatus.InProgress or OrderStatus.PendingUpload;
 
     private static int GetQueuePosition(List<Order> queue, Order order)
     {
@@ -373,9 +383,24 @@ public class OrderService
 
         return new OrderResponse(
             order.Id, order.EventId, order.OrderNumber, order.CustomerName, order.Phone,
-            _storage.GetPublicUrl(order.ImagePath),
+            _storage.GetPreviewUrl(order.ImagePath),
             order.MagnetSize, order.Quantity, order.Status,
-            order.CreatedAt, position > 0 ? position : null, estimated, wait, order.NotificationFailed);
+            order.CreatedAt, position > 0 ? position : null, estimated, wait, order.NotificationFailed, order.ImageUploadFailed);
+    }
+
+    // Atomically reserves the next order number for the event in a single UPDATE, replacing the
+    // old optimistic-retry loop: the UPDATE itself is race-free (SQLite serializes writers;
+    // Postgres row-locks the updated row), so no retry-on-unique-violation is needed.
+    private async Task<int> ReserveNextOrderNumberAsync(Guid eventId)
+    {
+        // ToListAsync (not SingleAsync) — EF can't compose a query on top of an UPDATE...RETURNING,
+        // so the row has to be materialized first and reduced to one value client-side.
+        var reserved = await _db.Database
+            .SqlQueryRaw<int>(
+                "UPDATE \"Events\" SET \"NextOrderNumber\" = \"NextOrderNumber\" + 1 WHERE \"Id\" = {0} RETURNING \"NextOrderNumber\" - 1",
+                eventId)
+            .ToListAsync();
+        return reserved.Single();
     }
 
     private static bool IsSizeAvailable(Event evt, MagnetSize size) => size switch

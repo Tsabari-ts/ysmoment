@@ -20,7 +20,8 @@ public record UpdateEventSettingsRequest(
     bool? IsActive,
     bool? OrdersOpen,
     bool? OrdersPaused,
-    int? AveragePrepTimeMinutes
+    int? AveragePrepTimeMinutes,
+    bool? MuteCustomerNotifications
 );
 
 public record EventResponse(
@@ -39,6 +40,7 @@ public record EventResponse(
     bool OrdersOpen,
     bool OrdersPaused,
     bool IsEnded,
+    bool MuteCustomerNotifications,
     string GuestUrl,
     string? QrCodeBase64
 );
@@ -67,3 +69,9 @@ public record EventSummaryResponse(
 );
 
 public record PeakHourStat(string Hour, int OrderCount);
+
+public record EventDashboardResponse(
+    EventResponse Event,
+    List<OrderResponse> Orders,
+    DashboardStatsResponse Stats
+);

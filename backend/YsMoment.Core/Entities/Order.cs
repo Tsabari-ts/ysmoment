@@ -13,6 +13,7 @@ public class Order
     public string? ImagePath { get; set; }
     public bool ImageDeleted { get; set; }
     public bool NotificationFailed { get; set; }
+    public bool ImageUploadFailed { get; set; }
     public MagnetSize MagnetSize { get; set; }
     public int Quantity { get; set; }
     public OrderStatus Status { get; set; } = OrderStatus.New;

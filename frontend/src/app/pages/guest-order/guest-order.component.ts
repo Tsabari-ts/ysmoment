@@ -250,6 +250,7 @@ export class GuestOrderComponent implements OnInit, OnDestroy {
   get statusMessage(): string {
     if (!this.order) return '';
     switch (this.order.status) {
+      case OrderStatus.PendingUpload:
       case OrderStatus.New:
         return 'ההזמנה שלך בתור וממתינה לטיפול';
       case OrderStatus.InProgress:

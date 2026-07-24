@@ -17,7 +17,8 @@ export enum OrderStatus {
   New = 0,
   InProgress = 1,
   Ready = 2,
-  Cancelled = 3
+  Cancelled = 3,
+  PendingUpload = 4
 }
 
 export interface EventResponse {
@@ -36,6 +37,7 @@ export interface EventResponse {
   ordersOpen: boolean;
   ordersPaused: boolean;
   isEnded: boolean;
+  muteCustomerNotifications: boolean;
   guestUrl: string;
   qrCodeBase64?: string;
 }
@@ -68,6 +70,13 @@ export interface OrderResponse {
   estimatedWaitMinutes?: number;
   waitMinutes: number;
   notificationFailed: boolean;
+  imageUploadFailed: boolean;
+}
+
+export interface EventDashboardResponse {
+  event: EventResponse;
+  orders: OrderResponse[];
+  stats: DashboardStats;
 }
 
 export interface PublicOrderView {
@@ -139,5 +148,6 @@ export const STATUS_LABELS: Record<OrderStatus, string> = {
   [OrderStatus.New]: 'חדש',
   [OrderStatus.InProgress]: 'בטיפול',
   [OrderStatus.Ready]: 'מוכן',
-  [OrderStatus.Cancelled]: 'בוטל'
+  [OrderStatus.Cancelled]: 'בוטל',
+  [OrderStatus.PendingUpload]: 'מעלה תמונה...'
 };
