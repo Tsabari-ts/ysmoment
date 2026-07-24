@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using YsMoment.Api.Hubs;
 using YsMoment.Api.Services;
+using YsMoment.Core.Interfaces;
 using YsMoment.Infrastructure;
 using YsMoment.Infrastructure.Data;
 using YsMoment.Infrastructure.Services;
@@ -19,6 +20,7 @@ builder.Services.AddSignalR();
 builder.Services.AddInfrastructure(builder.Configuration, builder.Environment);
 builder.Services.AddScoped<QrCodeService>();
 builder.Services.AddScoped<RealtimeNotifier>();
+builder.Services.AddScoped<IRealtimeNotifier>(sp => sp.GetRequiredService<RealtimeNotifier>());
 
 builder.Services.AddResponseCompression(options =>
 {

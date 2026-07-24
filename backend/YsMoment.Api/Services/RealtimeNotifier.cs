@@ -1,11 +1,12 @@
 using Microsoft.AspNetCore.SignalR;
 using YsMoment.Api.Hubs;
 using YsMoment.Core.DTOs;
+using YsMoment.Core.Interfaces;
 using YsMoment.Infrastructure.Services;
 
 namespace YsMoment.Api.Services;
 
-public class RealtimeNotifier
+public class RealtimeNotifier : IRealtimeNotifier
 {
     private readonly IHubContext<OrderHub> _hub;
     private readonly OrderService _orders;

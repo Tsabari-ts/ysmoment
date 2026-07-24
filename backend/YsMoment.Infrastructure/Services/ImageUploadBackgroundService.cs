@@ -57,6 +57,7 @@ public class ImageUploadBackgroundService : BackgroundService
                     "Image upload succeeded. OrderId={OrderId} Attempt={Attempt}", job.OrderId, attempt);
 
                 await CompleteOrderAsync(scope, job.OrderId, imagePath, ct);
+                await NotifyAsync(scope, job.EventId);
                 return;
             }
             catch (Exception ex)
@@ -72,6 +73,7 @@ public class ImageUploadBackgroundService : BackgroundService
                         MaxAttempts, job.OrderId);
 
                     await MarkUploadFailedAsync(scope, job.OrderId, ct);
+                    await NotifyAsync(scope, job.EventId);
                     return;
                 }
 
@@ -106,5 +108,11 @@ public class ImageUploadBackgroundService : BackgroundService
         order.ImageUploadFailed = true;
         order.UpdatedAt = DateTime.UtcNow;
         await db.SaveChangesAsync(ct);
+    }
+
+    private static async Task NotifyAsync(IServiceScope scope, Guid eventId)
+    {
+        var notifier = scope.ServiceProvider.GetRequiredService<IRealtimeNotifier>();
+        await notifier.NotifyEventUpdateAsync(eventId);
     }
 }
